@@ -31,6 +31,16 @@
   --border:       rgba(0,0,0,0.07);
   --border-gold:  rgba(255,107,43,0.3);
 
+  /* ---- Glassmorphism (warm, accordé orange) ---- */
+  --glass-bg:        rgba(255,255,255,0.55);
+  --glass-bg-strong: rgba(255,255,255,0.72);
+  --glass-border:    rgba(255,255,255,0.7);
+  --glass-blur:      20px;
+  --glass-shadow:    0 14px 44px rgba(40,22,8,0.08), 0 2px 8px rgba(40,22,8,0.04), inset 0 1px 0 rgba(255,255,255,0.85);
+  /* ---- Glass on dark ---- */
+  --glass-dark-bg:     rgba(255,255,255,0.055);
+  --glass-dark-border: rgba(255,255,255,0.13);
+
   --font-display: 'Helvetica Neue', Helvetica, Arial, sans-serif;
   --font-body:    'Helvetica Neue', Helvetica, Arial, sans-serif;
 
@@ -51,15 +61,75 @@ body {
   overflow-x: hidden;
 }
 
-/* Subtle texture overlay */
+/* Subtle texture overlay (grain) */
 body::after {
   content: '';
   position: fixed;
   inset: 0;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
-  opacity: 0.018;
+  opacity: 0.028;
   pointer-events: none;
   z-index: 9999;
+}
+
+/* ============================================================
+   BACKGROUND TEXTURE FIELD  (aurora chaud + grille blueprint)
+   ============================================================ */
+.bg-field {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  overflow: hidden;
+  pointer-events: none;
+}
+.bg-grid {
+  position: absolute;
+  inset: -25%;
+  background-image:
+    linear-gradient(to right,  rgba(14,14,14,0.028) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(14,14,14,0.028) 1px, transparent 1px);
+  background-size: 40px 40px;
+  -webkit-mask-image: radial-gradient(ellipse 58% 48% at 50% 38%, #000 35%, transparent 78%);
+          mask-image: radial-gradient(ellipse 58% 48% at 50% 38%, #000 35%, transparent 78%);
+}
+.bg-aurora {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(96px);
+  will-change: transform;
+}
+.bg-aurora-1 {
+  width: 52vw; height: 52vw;
+  background: radial-gradient(circle, rgba(255,107,43,0.16) 0%, rgba(255,107,43,0) 70%);
+  top: -14%; left: -8%;
+  animation: auroraA 28s ease-in-out infinite;
+}
+.bg-aurora-2 {
+  width: 44vw; height: 44vw;
+  background: radial-gradient(circle, rgba(255,170,110,0.14) 0%, rgba(255,170,110,0) 70%);
+  top: 24%; right: -12%;
+  animation: auroraB 34s ease-in-out infinite;
+}
+.bg-aurora-3 {
+  width: 48vw; height: 48vw;
+  background: radial-gradient(circle, rgba(255,107,43,0.10) 0%, rgba(255,107,43,0) 72%);
+  bottom: -16%; left: 28%;
+  animation: auroraC 31s ease-in-out infinite;
+}
+@keyframes auroraA {
+  0%,100% { transform: translate(0,0) scale(1); }
+  50%     { transform: translate(7vw, 5vh) scale(1.12); }
+}
+@keyframes auroraB {
+  0%,100% { transform: translate(0,0) scale(1); }
+  50%     { transform: translate(-6vw, 7vh) scale(1.1); }
+}
+@keyframes auroraC {
+  0%,100% { transform: translate(0,0) scale(1); }
+  50%     { transform: translate(4vw, -6vh) scale(1.15); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bg-aurora { animation: none !important; }
 }
 
 img { max-width: 100%; display: block; }
@@ -117,7 +187,7 @@ button { cursor: pointer; font-family: var(--font-body); border: none; backgroun
 }
 .btn-gold:hover {
   transform: translateY(-2px) scale(1.02);
-  box-shadow: 0 20px 50px rgba(201,169,110,0.4);
+  box-shadow: 0 20px 50px rgba(255,107,43,0.4);
 }
 .btn-ghost {
   display: inline-flex;
@@ -134,6 +204,47 @@ button { cursor: pointer; font-family: var(--font-body); border: none; backgroun
 .btn-ghost:hover { border-color: rgba(255,255,255,0.2); color: var(--text); transform: translateY(-1px); }
 
 /* ============================================================
+   GLASS UTILITY  (frosted, warm, light-source sheen)
+   ============================================================ */
+.glass {
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.5);
+          backdrop-filter: blur(var(--glass-blur)) saturate(1.5);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  position: relative;
+  overflow: hidden;
+}
+/* top reflection line */
+.glass::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 8%; right: 8%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.95), transparent);
+  pointer-events: none;
+  z-index: 2;
+}
+/* sheen that sweeps on hover */
+.glass-sheen::after {
+  content: '';
+  position: absolute;
+  top: -60%; left: -40%;
+  width: 45%; height: 220%;
+  background: linear-gradient(100deg, transparent, rgba(255,255,255,0.45), transparent);
+  transform: translateX(-60%) rotate(8deg);
+  opacity: 0;
+  transition: transform 0.9s var(--ease-expo), opacity 0.5s;
+  pointer-events: none;
+  z-index: 0;
+}
+.glass-sheen:hover::after {
+  transform: translateX(360%) rotate(8deg);
+  opacity: 1;
+}
+.glass-sheen > * { position: relative; z-index: 1; }
+
+/* ============================================================
    NAV
    ============================================================ */
 .nav {
@@ -145,10 +256,11 @@ button { cursor: pointer; font-family: var(--font-body); border: none; backgroun
   transition: background 0.5s var(--ease-expo), border-color 0.5s;
 }
 .nav.scrolled {
-  background: rgba(250,250,248,0.92);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border-bottom-color: var(--border);
+  background: rgba(250,250,248,0.6);
+  backdrop-filter: blur(26px) saturate(1.6);
+  -webkit-backdrop-filter: blur(26px) saturate(1.6);
+  border-bottom-color: rgba(255,255,255,0.5);
+  box-shadow: 0 8px 30px rgba(40,22,8,0.05);
 }
 .nav-inner {
   display: flex;
@@ -190,7 +302,89 @@ button { cursor: pointer; font-family: var(--font-body); border: none; backgroun
   transition: background 0.2s, transform 0.2s;
 }
 .nav-cta:hover { background: var(--gold); transform: translateY(-1px); }
-.nav-mobile { display: none; }
+
+/* ---- Burger + menu mobile ---- */
+.nav-burger {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 44px; height: 44px;
+  padding: 0 10px;
+  border-radius: 12px;
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: blur(12px);
+          backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+}
+.nav-burger span {
+  display: block;
+  height: 2px;
+  width: 100%;
+  background: var(--text);
+  border-radius: 2px;
+  transition: transform 0.35s var(--ease-expo), opacity 0.25s;
+}
+body.menu-open .nav-burger span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+body.menu-open .nav-burger span:nth-child(2) { opacity: 0; }
+body.menu-open .nav-burger span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+.mobile-menu {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  background: rgba(250,250,248,0.82);
+  -webkit-backdrop-filter: blur(30px) saturate(1.5);
+          backdrop-filter: blur(30px) saturate(1.5);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  padding: 80px 32px 40px;
+  opacity: 0;
+  visibility: hidden;
+  transform: scale(1.04);
+  transition: opacity 0.4s var(--ease-expo), transform 0.5s var(--ease-expo), visibility 0.4s;
+}
+body.menu-open .mobile-menu { opacity: 1; visibility: visible; transform: scale(1); }
+.mobile-menu-links {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 32px;
+}
+.mm-link {
+  font-family: var(--font-display);
+  font-size: 2.1rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--text);
+  padding: 8px 0;
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.5s var(--ease-expo), transform 0.5s var(--ease-expo), color 0.2s;
+}
+.mm-link:active { color: var(--gold); }
+body.menu-open .mm-link { opacity: 1; transform: translateY(0); }
+body.menu-open .mm-link:nth-child(1) { transition-delay: 0.08s; }
+body.menu-open .mm-link:nth-child(2) { transition-delay: 0.14s; }
+body.menu-open .mm-link:nth-child(3) { transition-delay: 0.20s; }
+body.menu-open .mm-link:nth-child(4) { transition-delay: 0.26s; }
+body.menu-open .mm-link:nth-child(5) { transition-delay: 0.32s; }
+.mm-cta {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.5s var(--ease-expo) 0.36s, transform 0.5s var(--ease-expo) 0.36s;
+}
+body.menu-open .mm-cta { opacity: 1; transform: translateY(0); }
+.mm-foot {
+  margin-top: 28px;
+  font-size: 0.74rem;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+}
 
 /* ============================================================
    HERO
@@ -213,13 +407,13 @@ button { cursor: pointer; font-family: var(--font-body); border: none; backgroun
   filter: blur(140px);
 }
 .hero-glow-1 {
-  width: 700px; height: 700px;
-  background: radial-gradient(circle, rgba(255,107,43,0.08) 0%, transparent 70%);
+  width: 760px; height: 760px;
+  background: radial-gradient(circle, rgba(255,107,43,0.16) 0%, transparent 70%);
   top: -200px; right: -150px;
 }
 .hero-glow-2 {
-  width: 500px; height: 500px;
-  background: radial-gradient(circle, rgba(255,107,43,0.05) 0%, transparent 70%);
+  width: 560px; height: 560px;
+  background: radial-gradient(circle, rgba(255,150,90,0.11) 0%, transparent 70%);
   bottom: -100px; left: -100px;
 }
 
@@ -344,7 +538,7 @@ button { cursor: pointer; font-family: var(--font-body); border: none; backgroun
 .marquee-sep {
   width: 4px; height: 4px;
   border-radius: 50%;
-  background: rgba(201,169,110,0.4);
+  background: rgba(255,107,43,0.45);
   flex-shrink: 0;
 }
 @keyframes marqueeAnim {
@@ -378,7 +572,19 @@ section { padding: 120px 0; }
   background: var(--text);
   border-radius: 28px;
   color: var(--bg);
+  position: relative;
+  overflow: hidden;
 }
+.qa-inner::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 46% 70% at 100% 0%, rgba(255,107,43,0.22) 0%, transparent 58%),
+    radial-gradient(ellipse 40% 50% at -5% 100%, rgba(255,140,80,0.12) 0%, transparent 60%);
+  pointer-events: none;
+}
+.qa-inner > * { position: relative; z-index: 1; }
 .qa-inner .label { color: var(--gold); }
 .qa-inner .display-md { color: var(--bg-card); }
 .qa-right { display: flex; flex-direction: column; gap: 18px; }
@@ -415,9 +621,11 @@ section { padding: 120px 0; }
   aspect-ratio: 16 / 9;
   border-radius: 24px;
   overflow: hidden;
-  background: var(--bg-card-2);
-  border: 1px solid var(--border);
-  box-shadow: 0 32px 80px rgba(0,0,0,0.08);
+  background: var(--glass-bg-strong);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.4);
+          backdrop-filter: blur(var(--glass-blur)) saturate(1.4);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 32px 80px rgba(40,22,8,0.1), inset 0 1px 0 rgba(255,255,255,0.8);
   transition: box-shadow 0.3s;
 }
 .vsl-player:hover { box-shadow: 0 40px 100px rgba(0,0,0,0.12); }
@@ -481,14 +689,18 @@ section { padding: 120px 0; }
   gap: 20px;
 }
 .forqui-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.5);
+          backdrop-filter: blur(var(--glass-blur)) saturate(1.5);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
   border-radius: 28px;
   padding: 52px;
   position: relative;
   overflow: hidden;
-  transition: border-color 0.3s;
+  transition: border-color 0.3s, transform 0.4s var(--ease-expo), box-shadow 0.4s var(--ease-expo);
 }
+.forqui-card:hover { transform: translateY(-4px); }
 .forqui-card::before {
   content: '';
   position: absolute;
@@ -543,10 +755,15 @@ section { padding: 120px 0; }
    MÉTHODE
    ============================================================ */
 .methode-inner {
-  background: var(--bg-card-2);
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.5);
+          backdrop-filter: blur(var(--glass-blur)) saturate(1.5);
   border-radius: 36px;
   padding: 72px 80px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  position: relative;
+  overflow: hidden;
 }
 .methode-steps {
   display: grid;
@@ -562,7 +779,7 @@ section { padding: 120px 0; }
 .methode-step:not(:last-child)::after {
   content: '';
   position: absolute;
-  top: 32px;
+  top: 38px;
   right: 16px;
   height: 1px;
   width: calc(100% - 32px);
@@ -578,12 +795,12 @@ section { padding: 120px 0; }
   font-family: var(--font-display);
   font-size: 3rem;
   font-weight: 800;
-  color: rgba(201,169,110,0.12);
+  color: rgba(255,107,43,0.16);
   line-height: 1;
   margin-bottom: 18px;
   transition: color 0.3s;
 }
-.methode-step:hover .step-num { color: rgba(201,169,110,0.35); }
+.methode-step:hover .step-num { color: rgba(255,107,43,0.42); }
 .step-title {
   font-family: var(--font-display);
   font-size: 1.05rem;
@@ -597,6 +814,75 @@ section { padding: 120px 0; }
   line-height: 1.7;
 }
 
+/* ---- Schémas d'étape (mini-diagrammes animés) ---- */
+.step-diagram {
+  width: 78px; height: 78px;
+  border-radius: 18px;
+  background: rgba(255,255,255,0.55);
+  -webkit-backdrop-filter: blur(10px);
+          backdrop-filter: blur(10px);
+  border: 1px solid var(--glass-border);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.85), 0 8px 22px rgba(40,22,8,0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 22px;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.45s var(--ease-expo), box-shadow 0.45s var(--ease-expo), border-color 0.3s;
+}
+.methode-step:hover .step-diagram {
+  transform: translateY(-4px);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.9), 0 16px 34px rgba(40,22,8,0.12);
+  border-color: rgba(255,107,43,0.4);
+}
+.step-diagram::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 70% 60% at 30% 18%, rgba(255,107,43,0.10), transparent 65%);
+  pointer-events: none;
+}
+.sd-svg { width: 46px; height: 46px; display: block; color: var(--text); position: relative; z-index: 1; }
+.sd-num {
+  position: absolute;
+  top: 8px; right: 10px;
+  font-family: var(--font-display);
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: var(--gold);
+  z-index: 2;
+}
+.sd-svg * { transform-box: fill-box; transform-origin: center; }
+
+/* keyframes */
+@keyframes sdPop   { 0%,100% { transform: scale(1); } 50% { transform: scale(1.22); } }
+@keyframes sdPulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.35; transform: scale(1.3); } }
+@keyframes sdWave  { 0%,100% { transform: scaleY(0.55); } 50% { transform: scaleY(1.15); } }
+@keyframes sdGrow  { 0% { transform: scaleY(0.4); } 55%,100% { transform: scaleY(1); } }
+@keyframes sdClap  { 0%,72%,100% { transform: rotate(0); } 84% { transform: rotate(-22deg); } }
+@keyframes sdSweep { 0% { transform: translateX(0); opacity: 0; } 12% { opacity: 1; } 88% { opacity: 1; } 100% { transform: translateX(32px); opacity: 0; } }
+@keyframes sdDraw  { to { stroke-dashoffset: 0; } }
+
+.sd-swatch { animation: sdPop 3.4s ease-in-out infinite; }
+.sd-swatch.s2 { animation-delay: 0.28s; }
+.sd-swatch.s3 { animation-delay: 0.56s; }
+.sd-target  { animation: sdPulse 2.6s ease-in-out infinite; }
+.sd-clapTop { animation: sdClap 3.6s ease-in-out infinite; transform-box: view-box; transform-origin: 9px 22px; }
+.sd-wave    { animation: sdWave 1.5s ease-in-out infinite; }
+.sd-wave.w2 { animation-delay: 0.18s; } .sd-wave.w3 { animation-delay: 0.36s; }
+.sd-wave.w4 { animation-delay: 0.54s; } .sd-wave.w5 { animation-delay: 0.72s; }
+.sd-playhead{ animation: sdSweep 3s ease-in-out infinite; }
+.sd-pin     { animation: sdPop 2.8s ease-in-out infinite; }
+.sd-pin.p2  { animation-delay: 0.3s; } .sd-pin.p3 { animation-delay: 0.6s; }
+.sd-bar     { animation: sdGrow 3s ease-in-out infinite; transform-origin: center bottom; }
+.sd-bar.b2  { animation-delay: 0.2s; } .sd-bar.b3 { animation-delay: 0.4s; }
+.sd-trend   { stroke-dasharray: 46; stroke-dashoffset: 46; animation: sdDraw 2.4s var(--ease-expo) infinite alternate; }
+@media (prefers-reduced-motion: reduce) {
+  .sd-svg * { animation: none !important; }
+}
+
 /* ============================================================
    CONFIGURATEUR
    ============================================================ */
@@ -607,10 +893,15 @@ section { padding: 120px 0; }
   align-items: start;
 }
 .config-controls {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.5);
+          backdrop-filter: blur(var(--glass-blur)) saturate(1.5);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
   border-radius: 28px;
   padding: 52px;
+  position: relative;
+  overflow: hidden;
 }
 .config-step-title {
   font-family: var(--font-display);
@@ -752,10 +1043,14 @@ section { padding: 120px 0; }
 .config-summary {
   position: sticky;
   top: 96px;
-  background: var(--bg-card);
+  background: var(--glass-bg-strong);
+  -webkit-backdrop-filter: blur(26px) saturate(1.6);
+          backdrop-filter: blur(26px) saturate(1.6);
   border: 1px solid var(--border-gold);
+  box-shadow: 0 20px 60px rgba(255,107,43,0.12), 0 4px 14px rgba(40,22,8,0.06), inset 0 1px 0 rgba(255,255,255,0.9);
   border-radius: 28px;
   padding: 40px;
+  overflow: hidden;
 }
 .summary-label {
   font-size: 0.7rem;
@@ -827,7 +1122,7 @@ section { padding: 120px 0; }
 }
 .config-cta:hover {
   transform: translateY(-2px);
-  box-shadow: 0 16px 40px rgba(201,169,110,0.35);
+  box-shadow: 0 16px 40px rgba(255,107,43,0.38);
 }
 .config-note {
   font-size: 0.72rem;
@@ -837,24 +1132,58 @@ section { padding: 120px 0; }
 }
 
 /* ============================================================
+   RÉSULTATS — bande sombre premium
+   ============================================================ */
+.resultats-panel {
+  position: relative;
+  background: #0D0D0D;
+  border-radius: 40px;
+  padding: 80px 64px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.07);
+  box-shadow: 0 44px 110px rgba(30,16,4,0.22);
+}
+.resultats-panel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 48% 60% at 10% -5%, rgba(255,107,43,0.26) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 60% at 92% 105%, rgba(255,150,90,0.18) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 40% at 60% 50%, rgba(120,90,255,0.05) 0%, transparent 70%);
+  pointer-events: none;
+}
+.resultats-panel > * { position: relative; z-index: 1; }
+.resultats-panel .display-lg { color: #FAFAF8; }
+@media (max-width: 768px) {
+  .resultats-panel { padding: 56px 28px; border-radius: 28px; }
+}
+
+/* ============================================================
    STATS
    ============================================================ */
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 2px;
-  background: var(--border);
-  border-radius: 28px;
-  overflow: hidden;
-  border: 1px solid var(--border);
+  gap: 14px;
+  margin-top: 8px;
 }
 .stat-card {
-  background: var(--bg-card);
-  padding: 52px 28px;
+  background: var(--glass-dark-bg);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+          backdrop-filter: blur(16px) saturate(1.4);
+  border: 1px solid var(--glass-dark-border);
+  border-radius: 22px;
+  padding: 50px 24px;
   text-align: center;
-  transition: background 0.3s;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.09);
+  transition: transform 0.4s var(--ease-expo), background 0.3s, border-color 0.3s;
 }
-.stat-card:hover { background: var(--bg-card-2); }
+.stat-card:hover {
+  transform: translateY(-6px);
+  background: rgba(255,255,255,0.09);
+  border-color: rgba(255,107,43,0.4);
+}
 .stat-number {
   font-family: var(--font-display);
   font-size: clamp(2.4rem, 4vw, 3.5rem);
@@ -862,10 +1191,11 @@ section { padding: 120px 0; }
   color: var(--gold);
   line-height: 1;
   margin-bottom: 10px;
+  text-shadow: 0 0 30px rgba(255,107,43,0.45);
 }
 .stat-label {
   font-size: 0.84rem;
-  color: var(--text-muted);
+  color: rgba(250,250,248,0.55);
   line-height: 1.45;
 }
 
@@ -881,8 +1211,11 @@ section { padding: 120px 0; }
 }
 
 .ig-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.5);
+          backdrop-filter: blur(var(--glass-blur)) saturate(1.5);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
   border-radius: 20px;
   overflow: hidden;
   cursor: pointer;
@@ -890,8 +1223,8 @@ section { padding: 120px 0; }
 }
 .ig-card:hover {
   transform: translateY(-6px);
-  box-shadow: 0 24px 60px rgba(0,0,0,0.1);
-  border-color: rgba(0,0,0,0.12);
+  box-shadow: 0 30px 70px rgba(40,22,8,0.13), inset 0 1px 0 rgba(255,255,255,0.85);
+  border-color: rgba(255,255,255,0.85);
 }
 
 /* Profile header */
@@ -1289,10 +1622,14 @@ section { padding: 120px 0; }
    ============================================================ */
 .faq-list { display: flex; flex-direction: column; gap: 3px; }
 .faq-item {
-  border: 1px solid var(--border);
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.4);
+          backdrop-filter: blur(var(--glass-blur)) saturate(1.4);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 6px 24px rgba(40,22,8,0.05), inset 0 1px 0 rgba(255,255,255,0.7);
   border-radius: 16px;
   overflow: hidden;
-  transition: border-color 0.3s;
+  transition: border-color 0.3s, box-shadow 0.3s;
 }
 .faq-item.open { border-color: var(--border-gold); }
 .faq-q {
@@ -1420,38 +1757,110 @@ section { padding: 120px 0; }
 }
 
 @media (max-width: 768px) {
-  section { padding: 80px 0; }
+  section { padding: 54px 0; }
   .nav-links { display: none; }
-  .nav-mobile { display: block; }
+  .nav-burger { display: flex; }
   .nav-cta { display: none; }
+  .section-header { margin-bottom: 36px; }
 
-  .forqui-grid { grid-template-columns: 1fr; }
-  .forqui-card { padding: 36px; }
+  .forqui-grid { grid-template-columns: 1fr; gap: 14px; }
+  .forqui-card { padding: 30px 26px; }
+  .forqui-title { margin-bottom: 24px; font-size: 1.2rem; }
+  .forqui-list { gap: 14px; }
 
-  .methode-inner { padding: 44px 28px; border-radius: 24px; }
-  .methode-steps { grid-template-columns: 1fr; }
+  .methode-inner { padding: 36px 22px; border-radius: 24px; }
+  .methode-steps { grid-template-columns: 1fr; margin-top: 44px; gap: 6px; }
+  .methode-step { padding: 0; display: grid; grid-template-columns: 64px 1fr; column-gap: 16px; align-items: start; }
   .methode-step::after { display: none !important; }
-  .methode-step:nth-child(n+2) { padding-top: 36px; }
+  .methode-step:nth-child(n+2) { padding-top: 24px; }
+  .step-diagram { margin-bottom: 0; width: 64px; height: 64px; border-radius: 16px; }
+  .step-diagram .sd-svg { width: 38px; height: 38px; }
+  .methode-step .step-title { margin-bottom: 6px; grid-column: 2; }
+  .methode-step p { grid-column: 2; }
 
-  .config-controls { padding: 32px 24px; }
-  .volume-grid { grid-template-columns: 1fr; }
+  /* ---- Configurateur compact ---- */
+  .config-grid { gap: 16px; }
+  .config-controls { padding: 26px 20px; border-radius: 22px; }
+  .config-step-title { font-size: 1rem; margin-bottom: 18px; }
+  .volume-grid { flex-direction: column; gap: 8px; }
+  .vol-label { padding: 13px 16px; justify-content: space-between; }
+  .config-divider { margin: 26px 0; }
+  .opt-label { padding: 12px 10px; gap: 12px; }
+  .opt-name { font-size: 0.88rem; }
+  .opt-desc { font-size: 0.74rem; }
+  .config-summary { padding: 28px 24px; border-radius: 22px; }
+  .summary-label { margin-bottom: 18px; }
+  .total-price { font-size: 2.4rem; }
+  .config-cta { padding: 16px; margin-top: 20px; }
 
   .stats-grid { grid-template-columns: repeat(2, 1fr); }
   .testimonials-grid { grid-template-columns: 1fr; }
 
-  .footer-top { grid-template-columns: 1fr; gap: 40px; }
+  .footer { padding: 48px 0 110px; }
+  .footer-top { grid-template-columns: 1fr; gap: 32px; margin-bottom: 36px; }
   .footer-bottom { flex-direction: column; align-items: flex-start; gap: 8px; }
 
   .display-xl { font-size: clamp(3rem, 12vw, 5rem); }
+  .hero { padding: 104px 0 60px; }
+  .hero-sub { margin-top: 24px; }
+  .hero-ctas { margin-top: 34px; }
 }
 
 @media (max-width: 480px) {
   .stats-grid { grid-template-columns: 1fr; }
-  .hero-ctas { flex-direction: column; align-items: flex-start; }
+  .hero-ctas { flex-direction: column; align-items: stretch; }
+  .hero-ctas .btn-gold, .hero-ctas .btn-ghost { justify-content: center; }
+}
+
+/* ============================================================
+   BARRE D'ACTION MOBILE (CTA flottants)
+   ============================================================ */
+.mobile-actionbar { display: none; }
+@media (max-width: 768px) {
+  .mobile-actionbar {
+    display: flex;
+    gap: 9px;
+    position: fixed;
+    left: 12px; right: 12px;
+    bottom: 12px;
+    z-index: 95;
+    padding: 9px;
+    border-radius: 20px;
+    background: rgba(250,250,248,0.72);
+    -webkit-backdrop-filter: blur(26px) saturate(1.7);
+            backdrop-filter: blur(26px) saturate(1.7);
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 14px 40px rgba(40,22,8,0.18), inset 0 1px 0 rgba(255,255,255,0.7);
+    transform: translateY(150%);
+    transition: transform 0.5s var(--ease-expo);
+    padding-bottom: calc(9px + env(safe-area-inset-bottom, 0px));
+  }
+  .mobile-actionbar.show { transform: translateY(0); }
+  body.menu-open .mobile-actionbar { transform: translateY(150%) !important; }
+  .mab-btn {
+    flex: 1;
+    text-align: center;
+    padding: 14px 8px;
+    border-radius: 14px;
+    font-size: 0.84rem;
+    font-weight: 700;
+    transition: transform 0.2s var(--ease-expo);
+  }
+  .mab-btn:active { transform: scale(0.97); }
+  .mab-gold { background: var(--gold); color: var(--bg); box-shadow: 0 6px 18px rgba(255,107,43,0.32); }
+  .mab-ghost { background: rgba(14,14,14,0.05); color: var(--text); border: 1px solid var(--border); }
 }
 </style>
 </head>
 <body>
+
+<!-- Champ de texture de fond : aurora chaud + grille blueprint -->
+<div class="bg-field" aria-hidden="true">
+  <div class="bg-grid"></div>
+  <div class="bg-aurora bg-aurora-1"></div>
+  <div class="bg-aurora bg-aurora-2"></div>
+  <div class="bg-aurora bg-aurora-3"></div>
+</div>
 
 <!-- ======================================================
      NAV
@@ -1467,10 +1876,31 @@ section { padding: 120px 0; }
         <li><a href="#faq">FAQ</a></li>
       </ul>
       <a href="#cta-final" class="nav-cta">Réserver un appel</a>
-      <a href="#offres" class="nav-mobile btn-ghost" style="padding: 10px 18px; font-size: 0.82rem;">Offres</a>
+      <button class="nav-burger" id="navBurger" aria-label="Ouvrir le menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
     </div>
   </div>
 </nav>
+
+<!-- Menu mobile plein écran -->
+<div class="mobile-menu" id="mobileMenu">
+  <nav class="mobile-menu-links">
+    <a href="#methode" class="mm-link">Méthode</a>
+    <a href="#offres" class="mm-link">Offres</a>
+    <a href="#resultats" class="mm-link">Résultats</a>
+    <a href="#temoignages" class="mm-link">Témoignages</a>
+    <a href="#faq" class="mm-link">FAQ</a>
+  </nav>
+  <a href="#cta-final" class="btn-gold mm-cta">Réserver un appel gratuit</a>
+  <p class="mm-foot">Lucidus Studio · Personal branding vidéo</p>
+</div>
+
+<!-- Barre d'action mobile (CTA flottants) -->
+<div class="mobile-actionbar" id="mobileActionbar">
+  <a href="#offres" class="mab-btn mab-ghost">Composer mon offre</a>
+  <a href="#cta-final" class="mab-btn mab-gold">Réserver un appel</a>
+</div>
 
 <!-- ======================================================
      HERO
@@ -1484,14 +1914,13 @@ section { padding: 120px 0; }
     </div>
 
     <h1 class="display-xl hero-headline">
-      <span class="hl-line"><span class="hl-inner">Ton personal brand</span></span>
+      <span class="hl-line"><span class="hl-inner">Ta personal brand</span></span>
       <span class="hl-line"><span class="hl-inner" style="color: var(--gold);">doit être</span></span>
       <span class="hl-line"><span class="hl-inner">à ta hauteur.</span></span>
     </h1>
 
     <p class="hero-sub">
-      Tu vends de l'expertise premium. Ton contenu doit l'être aussi.
-      Lucidus Studio produit le contenu vidéo des infopreneurs francophones&nbsp;—
+      Tu vends du premium. Ton contenu doit l'être aussi. On produit ta vidéo&nbsp;:
       direction artistique sur-mesure, montage haut de gamme, zéro générique.
     </p>
 
@@ -1512,6 +1941,29 @@ section { padding: 120px 0; }
   <div class="scroll-indicator" id="scrollIndicator">
     <span>Scroll</span>
     <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- ======================================================
+     VSL (juste sous le hero)
+     ====================================================== -->
+<section id="vsl" class="vsl-section" style="padding: 20px 0 100px;">
+  <div class="container">
+    <div class="vsl-wrapper reveal">
+      <div class="vsl-player" id="vslPlayer">
+        <!-- Remplace src par ton lien de vidéo (YouTube embed, Vimeo, Loom, etc.) -->
+        <!-- Exemple YouTube : https://www.youtube.com/embed/XXXXXXXXXXXX?autoplay=1 -->
+        <div class="vsl-placeholder">
+          <div class="vsl-play-btn" onclick="playVSL()">
+            <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+              <path d="M10 7l14 7-14 7V7z" fill="currentColor"/>
+            </svg>
+          </div>
+          <p class="vsl-hint">Regarde comment on transforme une expertise en contenu qui convertit</p>
+        </div>
+      </div>
+      <p class="vsl-caption">⏱ 3 min · Voir la méthode en action</p>
+    </div>
   </div>
 </section>
 
@@ -1570,26 +2022,6 @@ section { padding: 120px 0; }
   </div>
 </section>
 
-<section id="vsl" class="vsl-section">
-  <div class="container">
-    <div class="vsl-wrapper reveal">
-      <div class="vsl-player" id="vslPlayer">
-        <!-- Remplace src par ton lien de vidéo (YouTube embed, Vimeo, Loom, etc.) -->
-        <!-- Exemple YouTube : https://www.youtube.com/embed/XXXXXXXXXXXX?autoplay=1 -->
-        <div class="vsl-placeholder">
-          <div class="vsl-play-btn" onclick="playVSL()">
-            <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-              <path d="M10 7l14 7-14 7V7z" fill="currentColor"/>
-            </svg>
-          </div>
-          <p class="vsl-hint">Regarde comment on transforme une expertise en contenu qui convertit</p>
-        </div>
-      </div>
-      <p class="vsl-caption">⏱ 3 min · Voir la méthode en action</p>
-    </div>
-  </div>
-</section>
-
 <!-- ======================================================
      C'EST POUR QUI
      ====================================================== -->
@@ -1601,7 +2033,7 @@ section { padding: 120px 0; }
     </div>
 
     <div class="forqui-grid">
-      <div class="forqui-card yes reveal">
+      <div class="forqui-card yes reveal glass-sheen">
         <div class="forqui-title">
           <div class="forqui-icon">✦</div>
           Lucidus est fait pour toi si…
@@ -1615,7 +2047,7 @@ section { padding: 120px 0; }
         </ul>
       </div>
 
-      <div class="forqui-card no reveal">
+      <div class="forqui-card no reveal glass-sheen">
         <div class="forqui-title">
           <div class="forqui-icon" style="color: var(--text-muted);">✕</div>
           <span style="color: var(--text-dim);">Ce n'est pas pour toi si…</span>
@@ -1637,43 +2069,107 @@ section { padding: 120px 0; }
      ====================================================== -->
 <section id="methode">
   <div class="container">
-    <div class="methode-inner reveal">
+    <div class="methode-inner reveal glass-sheen">
       <div>
         <p class="label">Notre process</p>
         <h2 class="display-lg" style="margin-top: 18px; max-width: 560px;">De zéro à publié en 6 étapes.</h2>
         <p style="margin-top: 22px; color: var(--text-muted); max-width: 460px; font-size: 0.93rem; line-height: 1.72;">
-          Un process rôdé pour que tu n'aies qu'une chose à faire&nbsp;: être expert dans ton domaine.
+          Un process rôdé&nbsp;: ta seule mission, être expert dans ton domaine.
         </p>
       </div>
 
       <div class="methode-steps">
         <div class="methode-step reveal">
-          <div class="step-num">01</div>
+          <div class="step-diagram">
+            <span class="sd-num">01</span>
+            <svg class="sd-svg" viewBox="0 0 48 48" fill="none">
+              <path d="M28 9 C 35 9, 33 21, 42 19" stroke="#FF6B2B" stroke-width="2" stroke-linecap="round"/>
+              <text x="5" y="23" font-family="Helvetica, Arial, sans-serif" font-weight="800" font-size="16" fill="currentColor">Aa</text>
+              <circle class="sd-swatch s1" cx="11" cy="37" r="5" fill="#FF6B2B"/>
+              <circle class="sd-swatch s2" cx="24" cy="37" r="5" fill="currentColor"/>
+              <circle class="sd-swatch s3" cx="37" cy="37" r="5" fill="none" stroke="currentColor" stroke-width="2"/>
+            </svg>
+          </div>
           <div class="step-title">Direction artistique sur-mesure</div>
           <p>On crée ta DA unique&nbsp;: polices, couleurs, motion, effets visuels. Elle t'appartient. Tu vois le résultat avant même de signer.</p>
         </div>
         <div class="methode-step reveal">
-          <div class="step-num">02</div>
+          <div class="step-diagram">
+            <span class="sd-num">02</span>
+            <svg class="sd-svg" viewBox="0 0 48 48" fill="none">
+              <rect x="6" y="7" width="20" height="28" rx="3" stroke="currentColor" stroke-width="2"/>
+              <line x1="11" y1="15" x2="21" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <line x1="11" y1="21" x2="21" y2="21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <line x1="11" y1="27" x2="17" y2="27" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <circle class="sd-target" cx="35" cy="33" r="9" stroke="#FF6B2B" stroke-width="2" fill="none"/>
+              <circle cx="35" cy="33" r="3.4" fill="#FF6B2B"/>
+            </svg>
+          </div>
           <div class="step-title">Stratégie & scripts</div>
           <p>On structure les angles éditoriaux qui convertissent dans ta niche. Chaque vidéo est pensée pour performer.</p>
         </div>
         <div class="methode-step reveal">
-          <div class="step-num">03</div>
+          <div class="step-diagram">
+            <span class="sd-num">03</span>
+            <svg class="sd-svg" viewBox="0 0 48 48" fill="none">
+              <rect x="8" y="23" width="31" height="17" rx="3" stroke="currentColor" stroke-width="2"/>
+              <g class="sd-clapTop">
+                <path d="M8 22 L 37 14 L 39 21 L 10 29 Z" fill="currentColor"/>
+              </g>
+              <circle cx="23" cy="32" r="4.5" stroke="#FF6B2B" stroke-width="2" fill="none"/>
+              <circle cx="23" cy="32" r="1.5" fill="#FF6B2B"/>
+            </svg>
+          </div>
           <div class="step-title">Tournage (en option)</div>
           <p>On se déplace chez toi ou en studio. Environ 3h de tournage&nbsp;= 30 contenus prêts à monter.</p>
         </div>
         <div class="methode-step reveal">
-          <div class="step-num">04</div>
+          <div class="step-diagram">
+            <span class="sd-num">04</span>
+            <svg class="sd-svg" viewBox="0 0 48 48" fill="none">
+              <rect x="6" y="11" width="11" height="9" rx="2" fill="#FF6B2B"/>
+              <rect x="19" y="11" width="14" height="9" rx="2" stroke="currentColor" stroke-width="2"/>
+              <rect x="35" y="11" width="7" height="9" rx="2" fill="currentColor"/>
+              <g stroke="currentColor" stroke-width="2.4" stroke-linecap="round">
+                <line class="sd-wave w1" x1="10" y1="30" x2="10" y2="38"/>
+                <line class="sd-wave w2" x1="16" y1="30" x2="16" y2="38"/>
+                <line class="sd-wave w3" x1="22" y1="30" x2="22" y2="38"/>
+                <line class="sd-wave w4" x1="28" y1="30" x2="28" y2="38"/>
+                <line class="sd-wave w5" x1="34" y1="30" x2="34" y2="38"/>
+              </g>
+              <line class="sd-playhead" x1="9" y1="8" x2="9" y2="41" stroke="#FF6B2B" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
           <div class="step-title">Montage premium</div>
           <p>Motion design, sous-titres, colorimétrie, sound design. Tout le travail technique qui fait la différence à l'écran.</p>
         </div>
         <div class="methode-step reveal">
-          <div class="step-num">05</div>
+          <div class="step-diagram">
+            <span class="sd-num">05</span>
+            <svg class="sd-svg" viewBox="0 0 48 48" fill="none">
+              <rect x="6" y="9" width="36" height="22" rx="3" stroke="currentColor" stroke-width="2"/>
+              <path d="M21 16 l8 4 -8 4 z" fill="#FF6B2B"/>
+              <line x1="8" y1="38" x2="40" y2="38" stroke="currentColor" stroke-width="1.5" opacity="0.25" stroke-linecap="round"/>
+              <circle class="sd-pin p1" cx="15" cy="38" r="3.2" fill="#FF6B2B"/>
+              <circle class="sd-pin p2" cx="26" cy="38" r="3.2" fill="currentColor"/>
+              <circle class="sd-pin p3" cx="35" cy="38" r="3.2" fill="#FF6B2B"/>
+            </svg>
+          </div>
           <div class="step-title">Validation simple</div>
           <p>Retours timecodés directement sur la vidéo. Pas de mails interminables&nbsp;— des révisions rapides et précises.</p>
         </div>
         <div class="methode-step reveal">
-          <div class="step-num">06</div>
+          <div class="step-diagram">
+            <span class="sd-num">06</span>
+            <svg class="sd-svg" viewBox="0 0 48 48" fill="none">
+              <line x1="7" y1="41" x2="42" y2="41" stroke="currentColor" stroke-width="1.5" opacity="0.25" stroke-linecap="round"/>
+              <rect class="sd-bar b1" x="9" y="28" width="6" height="12" rx="2" fill="currentColor"/>
+              <rect class="sd-bar b2" x="19" y="22" width="6" height="18" rx="2" fill="#FF6B2B"/>
+              <rect class="sd-bar b3" x="29" y="16" width="6" height="24" rx="2" fill="currentColor"/>
+              <path class="sd-trend" d="M9 26 L 22 19 L 32 13 L 41 7" stroke="#FF6B2B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M41 7 l-6 0 M41 7 l0 6" stroke="#FF6B2B" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
           <div class="step-title">Livraison & suivi</div>
           <p>Fichiers livrés dans les bons formats. Analyse des performances chaque mois pour affiner la stratégie.</p>
         </div>
@@ -1691,13 +2187,13 @@ section { padding: 120px 0; }
       <p class="label">Configurateur</p>
       <h2 class="display-lg" style="margin-top: 18px;">Compose ton offre.</h2>
       <p style="margin-top: 22px; color: var(--text-muted); max-width: 480px; font-size: 0.93rem; line-height: 1.72;">
-        Choisis ton volume, ajoute les options qui te correspondent, et vois ton budget total se calculer en temps réel.
+        Choisis ton volume, ajoute tes options, et vois ton budget en temps réel.
       </p>
     </div>
 
     <div class="config-grid">
       <!-- Controls -->
-      <div class="config-controls">
+      <div class="config-controls glass-sheen">
         <!-- Step 1 -->
         <div class="config-step-title">
           <span class="step-badge">1</span>
@@ -1802,7 +2298,7 @@ section { padding: 120px 0; }
       </div>
 
       <!-- Summary -->
-      <div class="config-summary">
+      <div class="config-summary glass-sheen">
         <div class="summary-label">Récapitulatif</div>
         <ul class="recap-list" id="recapList">
           <li class="recap-item">
@@ -1827,26 +2323,28 @@ section { padding: 120px 0; }
      ====================================================== -->
 <section id="resultats">
   <div class="container">
-    <div class="section-header reveal" style="text-align: center;">
-      <p class="label">En chiffres</p>
-      <h2 class="display-lg" style="margin-top: 18px;">Des résultats qui parlent.</h2>
-    </div>
-    <div class="stats-grid">
-      <div class="stat-card reveal">
-        <div class="stat-number"><span class="counter" data-target="[@CHIFFRE]" data-suffix="">—</span></div>
-        <div class="stat-label">contenus produits<br>par mois</div>
+    <div class="resultats-panel reveal">
+      <div class="section-header" style="text-align: center; margin-bottom: 48px;">
+        <p class="label">En chiffres</p>
+        <h2 class="display-lg" style="margin-top: 18px;">Des résultats qui parlent.</h2>
       </div>
-      <div class="stat-card reveal">
-        <div class="stat-number"><span class="counter" data-target="[@CHIFFRE]" data-suffix="">—</span></div>
-        <div class="stat-label">créateurs<br>accompagnés</div>
-      </div>
-      <div class="stat-card reveal">
-        <div class="stat-number">80%</div>
-        <div class="stat-label">de signature après<br>la vidéo test</div>
-      </div>
-      <div class="stat-card reveal">
-        <div class="stat-number"><span class="counter" data-target="[@CHIFFRE]" data-suffix="">—</span></div>
-        <div class="stat-label">vues générées<br>pour nos clients</div>
+      <div class="stats-grid">
+        <div class="stat-card reveal">
+          <div class="stat-number"><span class="counter" data-target="[@CHIFFRE]" data-suffix="">—</span></div>
+          <div class="stat-label">contenus produits<br>par mois</div>
+        </div>
+        <div class="stat-card reveal">
+          <div class="stat-number"><span class="counter" data-target="[@CHIFFRE]" data-suffix="">—</span></div>
+          <div class="stat-label">créateurs<br>accompagnés</div>
+        </div>
+        <div class="stat-card reveal">
+          <div class="stat-number">80%</div>
+          <div class="stat-label">de signature après<br>la vidéo test</div>
+        </div>
+        <div class="stat-card reveal">
+          <div class="stat-number"><span class="counter" data-target="[@CHIFFRE]" data-suffix="">—</span></div>
+          <div class="stat-label">vues générées<br>pour nos clients</div>
+        </div>
       </div>
     </div>
   </div>
@@ -1865,10 +2363,10 @@ section { padding: 120px 0; }
     <div class="ig-grid">
 
       <!-- Client 1 -->
-      <div class="ig-card reveal" onclick="openIgProfile(0)">
+      <div class="ig-card reveal glass-sheen" onclick="openIgProfile(0)">
         <div class="ig-card-header">
           <div class="ig-avatar-ring">
-            <div class="ig-avatar-inner"><img src="alex.jpg" alt="Alex Shane" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"></div>
+            <div class="ig-avatar-inner"><img src="alex.jpg" alt="Alex Shane" onerror="this.parentElement.textContent='🛒'" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"></div>
           </div>
           <div class="ig-handle-wrap">
             <div class="ig-handle">
@@ -1892,10 +2390,10 @@ section { padding: 120px 0; }
       </div>
 
       <!-- Client 2 -->
-      <div class="ig-card reveal" onclick="openIgProfile(1)">
+      <div class="ig-card reveal glass-sheen" onclick="openIgProfile(1)">
         <div class="ig-card-header">
           <div class="ig-avatar-ring">
-            <div class="ig-avatar-inner"><img src="elie.jpg" alt="Elie Chauveau" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"></div>
+            <div class="ig-avatar-inner"><img src="elie.jpg" alt="Elie Chauveau" onerror="this.parentElement.textContent='🎯'" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"></div>
           </div>
           <div class="ig-handle-wrap">
             <div class="ig-handle">
@@ -1919,10 +2417,10 @@ section { padding: 120px 0; }
       </div>
 
       <!-- Client 3 -->
-      <div class="ig-card reveal" onclick="openIgProfile(2)">
+      <div class="ig-card reveal glass-sheen" onclick="openIgProfile(2)">
         <div class="ig-card-header">
           <div class="ig-avatar-ring">
-            <div class="ig-avatar-inner"><img src="ethan.jpg" alt="Ethan Duvin" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"></div>
+            <div class="ig-avatar-inner"><img src="ethan.jpg" alt="Ethan Duvin" onerror="this.parentElement.textContent='💻'" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"></div>
           </div>
           <div class="ig-handle-wrap">
             <div class="ig-handle">
@@ -2172,7 +2670,7 @@ section { padding: 120px 0; }
         <div class="footer-col-title">Contact</div>
         <div class="footer-col">
           <a href="https://instagram.com/[@INSTAGRAM]">Instagram</a>
-          <a href="mailto:[@EMAIL]">[@EMAIL]</a>
+          <a href="/cdn-cgi/l/email-protection#c39883868e828a8f9e">[@EMAIL]</a>
           <a href="[@LIEN RDV]">Prendre un rendez-vous</a>
         </div>
       </div>
@@ -2187,7 +2685,7 @@ section { padding: 120px 0; }
 <!-- ======================================================
      SCRIPTS
      ====================================================== -->
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 /* ============================================================
    DONNÉES CLIENTS INSTAGRAM
    Remplis chaque objet avec les vraies infos de tes clients.
@@ -2462,7 +2960,28 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
    ============================================================ */
 window.addEventListener('scroll', () => {
   document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 60);
+  const bar = document.getElementById('mobileActionbar');
+  if (bar) bar.classList.toggle('show', window.scrollY > 460);
 }, { passive: true });
+
+/* ============================================================
+   MENU MOBILE (burger)
+   ============================================================ */
+(function () {
+  const burger = document.getElementById('navBurger');
+  const menu = document.getElementById('mobileMenu');
+  if (!burger || !menu) return;
+
+  function setMenu(open) {
+    document.body.classList.toggle('menu-open', open);
+    burger.setAttribute('aria-expanded', open ? 'true' : 'false');
+    document.body.style.overflow = open ? 'hidden' : '';
+    if (typeof lenis !== 'undefined' && lenis) { open ? lenis.stop() : lenis.start(); }
+  }
+  burger.addEventListener('click', () => setMenu(!document.body.classList.contains('menu-open')));
+  menu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => setMenu(false)));
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') setMenu(false); });
+})();
 
 /* ============================================================
    HERO ANIMATION (GSAP)
