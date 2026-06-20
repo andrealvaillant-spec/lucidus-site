@@ -2441,7 +2441,6 @@ body.cursor-down .cursor-ring { width: 30px; height: 30px; }
       <a href="#" class="nav-logo">Lucidus<span>.</span></a>
       <ul class="nav-links">
         <li><a href="#methode">Méthode</a></li>
-        <li><a href="#offres">Offres</a></li>
         <li><a href="#resultats">Résultats</a></li>
         <li><a href="#faq">FAQ</a></li>
       </ul>
@@ -2457,7 +2456,6 @@ body.cursor-down .cursor-ring { width: 30px; height: 30px; }
 <div class="mobile-menu" id="mobileMenu">
   <nav class="mobile-menu-links">
     <a href="#methode" class="mm-link">Méthode</a>
-    <a href="#offres" class="mm-link">Offres</a>
     <a href="#resultats" class="mm-link">Résultats</a>
     <a href="#temoignages" class="mm-link">Témoignages</a>
     <a href="#faq" class="mm-link">FAQ</a>
@@ -2468,7 +2466,7 @@ body.cursor-down .cursor-ring { width: 30px; height: 30px; }
 
 <!-- Barre d'action mobile (CTA flottants) -->
 <div class="mobile-actionbar" id="mobileActionbar">
-  <a href="#offres" class="mab-btn mab-ghost">Composer mon offre</a>
+  <a href="#methode" class="mab-btn mab-ghost">Voir la méthode</a>
   <a href="#" onclick="openTunnel(); return false;" class="mab-btn mab-gold">Réserver un appel</a>
 </div>
 
@@ -2500,7 +2498,7 @@ body.cursor-down .cursor-ring { width: 30px; height: 30px; }
         Réserver un appel gratuit
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </a>
-      <a href="#offres" class="btn-ghost">Découvrir les offres</a>
+      <a href="#methode" class="btn-ghost">Voir la méthode</a>
     </div>
 
     <div class="hero-proof">
@@ -2750,145 +2748,6 @@ body.cursor-down .cursor-ring { width: 30px; height: 30px; }
   </div>
 </section>
 
-<!-- ======================================================
-     CONFIGURATEUR
-     ====================================================== -->
-<section id="offres">
-  <div class="container">
-    <div class="section-header reveal">
-      <p class="label">Configurateur</p>
-      <h2 class="display-lg" style="margin-top: 18px;">Compose ton offre.</h2>
-      <p style="margin-top: 22px; color: var(--text-muted); max-width: 480px; font-size: 0.93rem; line-height: 1.72;">
-        Choisis ton volume, ajoute tes options, et vois ton budget en temps réel.
-      </p>
-    </div>
-
-    <div class="config-grid">
-      <!-- Controls -->
-      <div class="config-controls glass-sheen">
-        <!-- Step 1 -->
-        <div class="config-step-title">
-          <span class="step-badge">1</span>
-          Volume de contenus courts / mois
-        </div>
-        <div class="volume-grid">
-          <div class="vol-option">
-            <input type="radio" name="volume" id="vol30" value="30" checked>
-            <label class="vol-label" for="vol30">
-              <span class="vol-count">30 contenus</span>
-              <span class="vol-sep"></span>
-              <span class="vol-price">1 900 €</span>
-            </label>
-          </div>
-          <div class="vol-option">
-            <input type="radio" name="volume" id="vol60" value="60">
-            <label class="vol-label" for="vol60">
-              <span class="vol-count">60 contenus</span>
-              <span class="vol-sep"></span>
-              <span class="vol-price">3 600 €</span>
-            </label>
-          </div>
-          <div class="vol-option">
-            <input type="radio" name="volume" id="vol90" value="90">
-            <label class="vol-label" for="vol90">
-              <span class="vol-count">90 contenus</span>
-              <span class="vol-sep"></span>
-              <span class="vol-price">4 900 €</span>
-            </label>
-          </div>
-        </div>
-
-        <div class="config-divider"></div>
-
-        <!-- Step 2 -->
-        <div class="config-step-title">
-          <span class="step-badge">2</span>
-          Options complémentaires
-        </div>
-        <div class="options-list">
-          <!-- Tournage -->
-          <div class="opt-item">
-            <input type="checkbox" id="opt-tournage" value="tournage">
-            <label class="opt-label" for="opt-tournage">
-              <div class="opt-toggle">
-                <div class="opt-toggle-track"></div>
-                <div class="opt-toggle-thumb"></div>
-              </div>
-              <div class="opt-info">
-                <div class="opt-name">Tournage à domicile</div>
-                <div class="opt-desc">On se déplace filmer — ~3h de tournage = 30 contenus</div>
-              </div>
-              <span class="opt-price" id="price-tournage">+1 500 €</span>
-            </label>
-          </div>
-          <!-- YouTube -->
-          <div class="opt-item">
-            <input type="checkbox" id="opt-youtube" value="youtube">
-            <label class="opt-label" for="opt-youtube">
-              <div class="opt-toggle">
-                <div class="opt-toggle-track"></div>
-                <div class="opt-toggle-thumb"></div>
-              </div>
-              <div class="opt-info">
-                <div class="opt-name">YouTube format long — 4 vidéos / mois</div>
-                <div class="opt-desc">Structure narrative, rétention, miniature, chapitrage</div>
-              </div>
-              <span class="opt-price">+2 800 €</span>
-            </label>
-          </div>
-          <!-- Gestion -->
-          <div class="opt-item">
-            <input type="checkbox" id="opt-gestion" value="gestion">
-            <label class="opt-label" for="opt-gestion">
-              <div class="opt-toggle">
-                <div class="opt-toggle-track"></div>
-                <div class="opt-toggle-thumb"></div>
-              </div>
-              <div class="opt-info">
-                <div class="opt-name">Gestion & publication</div>
-                <div class="opt-desc">Calendrier édito, légendes, hashtags, publication déléguée</div>
-              </div>
-              <span class="opt-price" id="price-gestion">+400 €</span>
-            </label>
-          </div>
-          <!-- Stratégie -->
-          <div class="opt-item">
-            <input type="checkbox" id="opt-strategie" value="strategie">
-            <label class="opt-label" for="opt-strategie">
-              <div class="opt-toggle">
-                <div class="opt-toggle-track"></div>
-                <div class="opt-toggle-thumb"></div>
-              </div>
-              <div class="opt-info">
-                <div class="opt-name">Stratégie premium & analyse de perf</div>
-                <div class="opt-desc">Rapport mensuel + ajustement des angles éditoriaux</div>
-              </div>
-              <span class="opt-price">+400 €</span>
-            </label>
-          </div>
-        </div>
-      </div>
-
-      <!-- Summary -->
-      <div class="config-summary glass-sheen">
-        <div class="summary-label">Récapitulatif</div>
-        <ul class="recap-list" id="recapList">
-          <li class="recap-item">
-            <span class="ri-name">30 contenus / mois</span>
-            <span class="ri-price">1 900 €</span>
-          </li>
-        </ul>
-        <div class="summary-total">
-          <div class="total-label">Total mensuel</div>
-          <div class="total-price" id="totalPrice">1 900 €</div>
-          <div class="total-period">par mois · sans engagement</div>
-        </div>
-        <a href="#" onclick="openBooking(); return false;" class="config-cta" id="configCta">Réserver mon appel →</a>
-        <p class="config-note">Premier appel offert · Vidéo test incluse</p>
-      </div>
-    </div>
-  </div>
-</section>
 
 <!-- ======================================================
      RÉSULTATS
@@ -3233,7 +3092,6 @@ body.cursor-down .cursor-ring { width: 30px; height: 30px; }
         <div class="footer-col">
           <a href="#pour-qui">C'est pour qui</a>
           <a href="#methode">Méthode</a>
-          <a href="#offres">Offres</a>
           <a href="#resultats">Résultats</a>
           <a href="#faq">FAQ</a>
         </div>
@@ -3767,62 +3625,6 @@ window.addEventListener('resize', () => {
   document.querySelectorAll('.faq-a.open').forEach(a => { a.style.maxHeight = a.scrollHeight + 'px'; });
 });
 
-/* ============================================================
-   CONFIGURATEUR — LOGIQUE DE PRIX
-   ============================================================ */
-function getVolume() {
-  return parseInt(document.querySelector('input[name="volume"]:checked').value);
-}
-function getCheckedOptions() {
-  return [...document.querySelectorAll('.options-list input:checked')].map(i => i.value);
-}
-function fmt(n) {
-  return n.toLocaleString('fr-FR') + ' €';
-}
-function optPrice(key, vol) {
-  const o = PRICES.options[key];
-  return o.fixed ? o.price : o.byVolume[vol];
-}
-
-function updateConfig() {
-  const vol = getVolume();
-  const opts = getCheckedOptions();
-
-  // Update indexed price tags
-  document.getElementById('price-tournage').textContent = '+ ' + fmt(PRICES.options.tournage.byVolume[vol]);
-  document.getElementById('price-gestion').textContent  = '+ ' + fmt(PRICES.options.gestion.byVolume[vol]);
-
-  // Compute total
-  let total = PRICES.volumes[vol];
-  const lines = [{ name: `${vol} contenus / mois`, price: PRICES.volumes[vol] }];
-  opts.forEach(key => {
-    const p = optPrice(key, vol);
-    total += p;
-    lines.push({ name: OPT_LABELS[key], price: p });
-  });
-
-  // Recap list
-  document.getElementById('recapList').innerHTML = lines.map(l =>
-    `<li class="recap-item"><span class="ri-name">${l.name}</span><span class="ri-price">${fmt(l.price)}</span></li>`
-  ).join('');
-
-  // Total with flip/roll animation
-  const totalEl = document.getElementById('totalPrice');
-  if (window.flipTotal) {
-    window.flipTotal(total);
-  } else {
-    totalEl.textContent = fmt(total);
-    totalEl.style.transform = 'scale(1.06)';
-    setTimeout(() => { totalEl.style.transform = 'scale(1)'; }, 160);
-  }
-
-  // CTA button
-  document.getElementById('configCta').textContent = `Réserver — ${fmt(total)}/mois →`;
-}
-
-document.querySelectorAll('input[name="volume"]').forEach(i => i.addEventListener('change', updateConfig));
-document.querySelectorAll('.options-list input').forEach(i => i.addEventListener('change', updateConfig));
-updateConfig(); // initial render
 
 /* ============================================================
    PREMIUM MICRO-INTERACTIONS
@@ -3832,21 +3634,6 @@ updateConfig(); // initial render
   const fine = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
   const hasGsap = typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined';
 
-  /* ---- Flip number sur le prix total ---- */
-  window.flipTotal = function (value) {
-    const el = document.getElementById('totalPrice');
-    if (!el) return;
-    const from = el._val || 0;
-    el._val = value;
-    if (reduce || typeof gsap === 'undefined') { el.textContent = fmt(value); return; }
-    const o = { v: from };
-    gsap.killTweensOf(o);
-    gsap.to(o, { v: value, duration: 0.6, ease: 'power3.out',
-      onUpdate() { el.textContent = fmt(Math.round(o.v)); } });
-    gsap.fromTo(el, { y: -9, opacity: 0.35 }, { y: 0, opacity: 1, duration: 0.5, ease: 'back.out(2)' });
-  };
-  // re-render the total now that flip exists
-  if (typeof updateConfig === 'function') updateConfig();
 
   /* ---- Curseur custom (cercle orange avec lag) ---- */
   if (fine) {
@@ -3922,30 +3709,7 @@ updateConfig(); // initial render
     pqIO.observe(pq);
   }
 
-  /* ---- Stats : anneau SVG progress autour des chiffres ---- */
-  const statFills = [0.78, 0.64, 0.8, 0.92];
-  const statCards = document.querySelectorAll('#resultats .stat-card');
-  statCards.forEach((card, i) => {
-    const r = 46, circ = 2 * Math.PI * r;
-    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    svg.setAttribute('class', 'stat-ring');
-    svg.setAttribute('viewBox', '0 0 100 100');
-    svg.style.setProperty('--circ', circ);
-    svg.innerHTML = `<circle class="ring-bg" cx="50" cy="50" r="${r}"></circle><circle class="ring-fg" cx="50" cy="50" r="${r}"></circle>`;
-    card.insertBefore(svg, card.firstChild);
-    card._ring = svg.querySelector('.ring-fg');
-    card._circ = circ;
-    card._fill = statFills[i % statFills.length];
-  });
-  const ringIO = new IntersectionObserver(es => {
-    es.forEach(en => {
-      if (en.isIntersecting && en.target._ring) {
-        en.target._ring.style.strokeDashoffset = en.target._circ * (1 - en.target._fill);
-        ringIO.unobserve(en.target);
-      }
-    });
-  }, { threshold: 0.5 });
-  statCards.forEach(c => ringIO.observe(c));
+
 
   /* ---- Méthode : spine verticale qui se dessine au scroll ---- */
   const spine = document.querySelector('.methode-spine');
