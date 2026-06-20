@@ -1850,6 +1850,153 @@ section { padding: 120px 0; }
   .mab-gold { background: var(--gold); color: var(--bg); box-shadow: 0 6px 18px rgba(255,107,43,0.32); }
   .mab-ghost { background: rgba(14,14,14,0.05); color: var(--text); border: 1px solid var(--border); }
 }
+/* ============================================================
+   PREMIUM MICRO-INTERACTIONS
+   ============================================================ */
+
+/* --- Curseur custom --- */
+@media (hover: hover) and (pointer: fine) {
+  body.cursor-on { cursor: none; }
+  body.cursor-on a, body.cursor-on button, body.cursor-on .ig-card,
+  body.cursor-on .opt-label, body.cursor-on .vol-label, body.cursor-on label,
+  body.cursor-on input, body.cursor-on .faq-q { cursor: none; }
+}
+.cursor-dot, .cursor-ring {
+  position: fixed;
+  top: 0; left: 0;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 100000;
+  transform: translate(-50%, -50%);
+  will-change: transform;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.cursor-dot {
+  width: 7px; height: 7px;
+  background: var(--gold);
+}
+.cursor-ring {
+  width: 38px; height: 38px;
+  border: 1.5px solid rgba(255,107,43,0.55);
+  transition: width 0.28s var(--ease-expo), height 0.28s var(--ease-expo),
+              background 0.28s, border-color 0.28s, opacity 0.3s;
+}
+body.cursor-active .cursor-dot, body.cursor-active .cursor-ring { opacity: 1; }
+body.cursor-hover .cursor-ring {
+  width: 64px; height: 64px;
+  background: rgba(255,107,43,0.08);
+  border-color: rgba(255,107,43,0.8);
+}
+body.cursor-down .cursor-ring { width: 30px; height: 30px; }
+
+/* --- Tilt 3D --- */
+.tilt { transform-style: preserve-3d; will-change: transform; }
+.tilt-inner { transform: translateZ(40px); transform-style: preserve-3d; }
+
+/* --- Section title clip-path reveal --- */
+.title-reveal {
+  clip-path: inset(0 100% 0 0);
+  opacity: 0.001;
+}
+.title-reveal.title-in {
+  clip-path: inset(0 0% 0 0);
+  opacity: 1;
+  transition: clip-path 1.05s var(--ease-expo), opacity 0.05s linear;
+}
+@media (prefers-reduced-motion: reduce) {
+  .title-reveal { clip-path: none !important; opacity: 1 !important; }
+}
+
+/* --- Méthode : spine verticale qui se dessine --- */
+.methode-steps { padding-left: 26px; }
+.methode-spine {
+  position: absolute;
+  left: 0; top: 6px; bottom: 6px;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--border);
+  overflow: hidden;
+}
+.methode-spine::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; right: 0;
+  height: 100%;
+  background: linear-gradient(to bottom, #FF6B2B, #FFB07A);
+  transform: scaleY(var(--spine, 0));
+  transform-origin: top;
+  box-shadow: 0 0 12px rgba(255,107,43,0.5);
+}
+@media (max-width: 768px) {
+  .methode-steps { padding-left: 0; }
+  .methode-spine { display: none; }
+}
+
+/* --- Pull quote mot par mot --- */
+.qa-pullquote .w {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(0.5em);
+  transition: opacity 0.5s var(--ease-expo), transform 0.5s var(--ease-expo);
+}
+.qa-pullquote.wq-in .w { opacity: 1; transform: translateY(0); }
+
+/* --- Stats : anneau SVG progress --- */
+.stat-card { position: relative; }
+.stat-ring {
+  position: absolute;
+  top: 26px; left: 50%;
+  transform: translateX(-50%) rotate(-90deg);
+  width: 96px; height: 96px;
+  pointer-events: none;
+  z-index: 0;
+}
+.stat-ring circle { fill: none; stroke-width: 2; }
+.stat-ring .ring-bg { stroke: rgba(255,255,255,0.08); }
+.stat-ring .ring-fg {
+  stroke: var(--gold);
+  stroke-linecap: round;
+  stroke-dasharray: var(--circ);
+  stroke-dashoffset: var(--circ);
+  transition: stroke-dashoffset 1.6s var(--ease-expo);
+  filter: drop-shadow(0 0 5px rgba(255,107,43,0.55));
+}
+.stat-card .stat-number, .stat-card .stat-label { position: relative; z-index: 1; }
+
+/* --- Hero : 3e glow + ripple sur le dot --- */
+.hero-glow-3 {
+  position: absolute;
+  width: 380px; height: 380px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,180,120,0.10) 0%, transparent 70%);
+  top: 32%; left: 44%;
+  pointer-events: none;
+  animation: glow3Drift 18s ease-in-out infinite;
+}
+@keyframes glow3Drift {
+  0%,100% { transform: translate(0,0) scale(1); }
+  50%     { transform: translate(-5vw, 4vh) scale(1.15); }
+}
+.hero-proof-dot { position: relative; }
+.hero-proof-dot::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1.5px solid var(--gold);
+  animation: dotRipple 2.4s ease-out infinite;
+}
+@keyframes dotRipple {
+  0%   { transform: scale(1); opacity: 0.7; }
+  100% { transform: scale(4.5); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-glow-3, .hero-proof-dot::after { animation: none; }
+}
+
+/* --- Magnetic buttons --- */
+.magnetic { will-change: transform; }
 
 /* ============================================================
    PAGE RÉSERVATION (slide-in, même pattern que ig-page)
@@ -2065,6 +2212,213 @@ section { padding: 120px 0; }
   .booking-slots-grid { grid-template-columns: repeat(3, 1fr); }
   .bs-step { font-size: 0.65rem; padding: 4px 8px; }
 }
+
+/* ============================================================
+   TUNNEL DE PRÉQUALIFICATION (variante A)
+   ============================================================ */
+#tunnelPage { z-index: 1002; }
+.tnl-wrap {
+  width: 100%; min-height: 100%;
+  display: flex; align-items: flex-start; justify-content: center;
+  padding: 40px 20px 80px; box-sizing: border-box;
+  background:
+    radial-gradient(ellipse 60% 50% at 12% 6%, rgba(255,107,43,0.10), transparent 60%),
+    radial-gradient(ellipse 55% 55% at 92% 96%, rgba(255,160,100,0.09), transparent 62%),
+    var(--bg);
+}
+.tnl { width: 100%; max-width: 440px; }
+.tnl-top { position: sticky; top: 0; z-index: 10; padding: 0 0 16px; }
+.tnl-topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 0 0;
+}
+.tnl-back-btn {
+  background: var(--glass-bg); backdrop-filter: blur(16px);
+  border: 1px solid var(--border); border-radius: 100px;
+  width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;
+  cursor: pointer; color: var(--text); transition: all 0.2s var(--ease-expo); flex-shrink: 0;
+}
+.tnl-back-btn:hover { background: rgba(255,255,255,0.85); border-color: rgba(0,0,0,0.16); }
+.tnl-back-btn.hidden { opacity: 0; pointer-events: none; }
+.tnl-brand { font-weight: 800; font-size: 0.9rem; letter-spacing: -0.02em; color: var(--text); }
+.tnl-brand span { color: var(--gold); }
+.tnl-step-count { font-size: 0.78rem; font-weight: 700; color: var(--text-muted); min-width: 44px; text-align: right; }
+.tnl-step-count b { color: var(--text); font-weight: 800; }
+.tnl-prog { height: 3px; background: var(--border); border-radius: 100px; overflow: hidden; margin-top: 12px; }
+.tnl-prog-bar { height: 100%; background: var(--gold); border-radius: 100px; transition: width 0.45s var(--ease-expo); }
+
+.tnl-body { padding-top: 8px; }
+.tnl-screen { animation: tnlIn 0.38s var(--ease-expo) both; }
+.tnl-screen.no-anim { animation: none; }
+@keyframes tnlIn { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+.tnl-kicker {
+  font-size: 0.72rem; font-weight: 700; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--gold); margin-bottom: 8px;
+}
+.tnl-title {
+  font-size: clamp(1.4rem, 4vw, 2rem); font-weight: 800;
+  letter-spacing: -0.03em; line-height: 1.15; color: var(--text); margin-bottom: 8px;
+}
+.tnl-hint { font-size: 0.88rem; color: var(--text-muted); margin-bottom: 20px; }
+
+/* Track cards */
+.tnl-tracks { display: flex; flex-direction: column; gap: 12px; margin-top: 24px; }
+.tnl-track {
+  display: flex; flex-direction: column; gap: 4px; text-align: left;
+  padding: 20px 52px 20px 24px;
+  background: var(--glass-bg); backdrop-filter: blur(20px) saturate(1.5);
+  border: 1px solid var(--glass-border); border-radius: 20px;
+  box-shadow: 0 8px 28px rgba(40,22,8,0.06), inset 0 1px 0 rgba(255,255,255,0.85);
+  cursor: pointer; transition: all 0.22s var(--ease-expo);
+  position: relative; overflow: hidden;
+}
+.tnl-track::before {
+  content: ''; position: absolute; top: 0; left: 8%; right: 8%; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.95), transparent);
+}
+.tnl-track:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 40px rgba(40,22,8,0.10), inset 0 1px 0 rgba(255,255,255,0.9);
+  border-color: rgba(255,107,43,0.22);
+}
+.tnl-track-persona { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold); }
+.tnl-track-name { font-size: 1.2rem; font-weight: 800; letter-spacing: -0.02em; color: var(--text); margin-top: 4px; }
+.tnl-track-desc { font-size: 0.86rem; color: var(--text-muted); line-height: 1.5; margin-top: 4px; }
+.tnl-track-arrow {
+  position: absolute; right: 20px; top: 50%; transform: translateY(-50%);
+  color: var(--text-muted); transition: transform 0.22s var(--ease-expo), color 0.22s;
+}
+.tnl-track:hover .tnl-track-arrow { transform: translateY(-50%) translateX(4px); color: var(--gold); }
+
+/* Options (choix) */
+.tnl-opts { display: flex; flex-direction: column; gap: 9px; margin-top: 20px; }
+.tnl-opt {
+  display: flex; align-items: flex-start; gap: 14px; text-align: left;
+  padding: 15px 18px;
+  background: var(--glass-bg); backdrop-filter: blur(20px) saturate(1.5);
+  border: 1px solid var(--glass-border); border-radius: 15px;
+  cursor: pointer; transition: all 0.18s var(--ease-expo);
+  position: relative; overflow: hidden;
+}
+.tnl-opt::before {
+  content: ''; position: absolute; top: 0; left: 8%; right: 8%; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.85), transparent);
+}
+.tnl-opt:hover { border-color: rgba(255,107,43,0.24); transform: translateX(3px); }
+.tnl-opt.sel {
+  background: rgba(255,107,43,0.08); border-color: rgba(255,107,43,0.38);
+  box-shadow: 0 0 0 3px rgba(255,107,43,0.08);
+}
+.tnl-opt-badge {
+  width: 28px; height: 28px; min-width: 28px; border-radius: 50%;
+  background: rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: center;
+  font-size: 0.75rem; font-weight: 800; color: var(--text-muted);
+  transition: all 0.18s; flex-shrink: 0; margin-top: 1px;
+}
+.tnl-opt.sel .tnl-opt-badge { background: var(--gold); color: white; }
+.tnl-opt-main { flex: 1; }
+.tnl-opt-name { font-size: 0.94rem; font-weight: 700; color: var(--text); line-height: 1.3; display: block; }
+.tnl-opt-desc { font-size: 0.8rem; color: var(--text-muted); margin-top: 2px; display: block; }
+
+/* Pied : bouton continuer */
+.tnl-foot { margin-top: 20px; }
+.tnl-btn {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  width: 100%; padding: 16px 28px; border-radius: 100px;
+  font-size: 0.96rem; font-weight: 700; font-family: inherit;
+  cursor: pointer; transition: all 0.25s var(--ease-expo); border: none;
+}
+.tnl-btn-primary {
+  background: linear-gradient(135deg, var(--gold), #e05a20); color: white;
+  box-shadow: 0 8px 28px rgba(255,107,43,0.35);
+}
+.tnl-btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 16px 44px rgba(255,107,43,0.45);
+}
+.tnl-btn-primary:disabled { opacity: 0.42; cursor: default; transform: none; box-shadow: none; }
+
+/* Champs contact */
+.tnl-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+.tnl-field label { font-size: 0.8rem; font-weight: 700; color: var(--text); letter-spacing: 0.02em; }
+.tnl-field input {
+  width: 100%; padding: 13px 16px;
+  background: rgba(255,255,255,0.75); border: 1px solid var(--border);
+  border-radius: 13px; font-size: 0.95rem; color: var(--text);
+  transition: all 0.2s var(--ease-expo); font-family: inherit; box-sizing: border-box;
+}
+.tnl-field input:focus {
+  outline: none; border-color: rgba(255,107,43,0.5);
+  box-shadow: 0 0 0 3px rgba(255,107,43,0.12); background: white;
+}
+.tnl-field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+/* Réservation dans le tunnel */
+.tnl-bk-label {
+  font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--text-muted); margin: 20px 0 10px;
+}
+.tnl-bk-days {
+  display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px;
+  scrollbar-width: none; -webkit-overflow-scrolling: touch;
+}
+.tnl-bk-days::-webkit-scrollbar { display: none; }
+.tnl-bk-day {
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: 10px 10px; min-width: 52px; border-radius: 14px;
+  border: 1px solid var(--border); background: rgba(255,255,255,0.7);
+  cursor: pointer; transition: all 0.18s var(--ease-expo); flex-shrink: 0;
+  font-family: inherit;
+}
+.tnl-bk-day:hover { border-color: rgba(255,107,43,0.3); background: rgba(255,107,43,0.05); }
+.tnl-bk-day.sel {
+  background: var(--gold); border-color: var(--gold); color: white;
+  box-shadow: 0 6px 20px rgba(255,107,43,0.35);
+}
+.tnl-bk-wd { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
+.tnl-bk-num { font-size: 1.1rem; font-weight: 800; }
+.tnl-bk-month { font-size: 0.65rem; font-weight: 600; opacity: 0.7; }
+.tnl-bk-day.sel .tnl-bk-wd,
+.tnl-bk-day.sel .tnl-bk-month { opacity: 0.9; }
+.tnl-bk-slots {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 4px;
+}
+.tnl-bk-slot {
+  padding: 11px 4px; text-align: center; font-size: 0.86rem; font-weight: 700;
+  border-radius: 12px; border: 1px solid var(--border); background: rgba(255,255,255,0.7);
+  cursor: pointer; transition: all 0.18s var(--ease-expo); color: var(--text);
+  font-family: inherit;
+}
+.tnl-bk-slot:hover:not(:disabled) { border-color: rgba(255,107,43,0.35); background: rgba(255,107,43,0.06); }
+.tnl-bk-slot.sel { background: var(--gold); border-color: var(--gold); color: white; box-shadow: 0 4px 14px rgba(255,107,43,0.3); }
+.tnl-bk-slot:disabled { opacity: 0.25; cursor: default; }
+.tnl-error {
+  background: rgba(220,50,50,0.08); border: 1px solid rgba(220,50,50,0.25);
+  border-radius: 12px; padding: 12px 16px; font-size: 0.86rem; color: #c0392b; margin-top: 12px;
+}
+
+/* Écran succès */
+.tnl-done { text-align: center; padding: 20px 0 40px; }
+.tnl-done-check {
+  width: 64px; height: 64px; background: rgba(52,199,89,0.12);
+  border: 1px solid rgba(52,199,89,0.3); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 20px; color: #34c759;
+}
+.tnl-done h3 { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.03em; color: var(--text); margin: 0 0 10px; }
+.tnl-done p { font-size: 0.95rem; color: var(--text-muted); line-height: 1.6; margin: 0 0 24px; }
+.tnl-done-detail {
+  display: inline-flex; align-items: center; flex-wrap: wrap; justify-content: center;
+  gap: 6px; background: rgba(255,107,43,0.08); border: 1px solid rgba(255,107,43,0.22);
+  border-radius: 100px; padding: 10px 20px;
+  font-size: 0.9rem; font-weight: 700; color: var(--text); margin-bottom: 8px;
+}
+.tnl-done-detail span { font-weight: 400; color: var(--text-muted); font-size: 0.82rem; }
+
+@media (max-width: 420px) {
+  .tnl-field-row { grid-template-columns: 1fr; gap: 0; }
+  .tnl-bk-slots { grid-template-columns: repeat(3, 1fr); }
+}
 </style>
 </head>
 <body>
@@ -2114,7 +2468,7 @@ section { padding: 120px 0; }
 <!-- Barre d'action mobile (CTA flottants) -->
 <div class="mobile-actionbar" id="mobileActionbar">
   <a href="#offres" class="mab-btn mab-ghost">Composer mon offre</a>
-  <a href="#cta-final" class="mab-btn mab-gold">Réserver un appel</a>
+  <a href="#" onclick="openTunnel(); return false;" class="mab-btn mab-gold">Réserver un appel</a>
 </div>
 
 <!-- ======================================================
@@ -2123,6 +2477,7 @@ section { padding: 120px 0; }
 <section class="hero" id="hero">
   <div class="hero-glow hero-glow-1"></div>
   <div class="hero-glow hero-glow-2"></div>
+  <div class="hero-glow-3"></div>
   <div class="container">
     <div class="hero-label-wrap">
       <p class="label">Agence de personal branding vidéo</p>
@@ -2140,7 +2495,7 @@ section { padding: 120px 0; }
     </p>
 
     <div class="hero-ctas">
-      <a href="#" onclick="openBooking(); return false;" class="btn-gold">
+      <a href="#" onclick="openTunnel(); return false;" class="btn-gold">
         Réserver un appel gratuit
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </a>
@@ -2294,6 +2649,7 @@ section { padding: 120px 0; }
       </div>
 
       <div class="methode-steps">
+        <div class="methode-spine"></div>
         <div class="methode-step reveal">
           <div class="step-diagram">
             <span class="sd-num">01</span>
@@ -2850,7 +3206,7 @@ section { padding: 120px 0; }
       Une vraie vidéo, ta vraie direction artistique, avant tout engagement. 8 fois sur 10, elle parle d'elle-même.
     </p>
     <div class="reveal">
-      <a href="#" onclick="openBooking(); return false;" class="btn-gold" style="font-size: 1.1rem; padding: 20px 52px; display: inline-flex;">
+      <a href="#" onclick="openTunnel(); return false;" class="btn-gold" style="font-size: 1.1rem; padding: 20px 52px; display: inline-flex;">
         Réserver mon appel gratuit
         <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M3 9h12M11 5l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </a>
@@ -2886,7 +3242,7 @@ section { padding: 120px 0; }
         <div class="footer-col">
           <a href="https://instagram.com/lucidus.fr_">Instagram</a>
           <a href="mailto:andrea.lv@lucidus.agency">andrea.lv@lucidus.agency</a>
-          <a href="#" onclick="openBooking(); return false;">Prendre un rendez-vous</a>
+          <a href="#" onclick="openTunnel(); return false;">Prendre un rendez-vous</a>
         </div>
       </div>
     </div>
@@ -2898,6 +3254,8 @@ section { padding: 120px 0; }
 </footer>
 
 <!-- ======================================================
+     PAGE RÉSERVATION (plein écran, slide droite)
+     ====================================================== -->
      PAGE RÉSERVATION (plein écran, slide droite)
      ====================================================== -->
 <div class="ig-page" id="bookingPage" style="z-index:1001;">
@@ -3008,8 +3366,11 @@ section { padding: 120px 0; }
 
 <!-- ======================================================
      SCRIPTS
+
+<!-- ======================================================
+     SCRIPTS
      ====================================================== -->
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script>
 /* ============================================================
    DONNÉES CLIENTS INSTAGRAM
    Remplis chaque objet avec les vraies infos de tes clients.
@@ -3392,14 +3753,20 @@ function toggleFaq(btn) {
   // Close all
   document.querySelectorAll('.faq-item.open').forEach(i => {
     i.classList.remove('open');
-    i.querySelector('.faq-a').classList.remove('open');
+    const a = i.querySelector('.faq-a');
+    a.classList.remove('open');
+    a.style.maxHeight = '0px';
   });
   // Toggle clicked
   if (!isOpen) {
     item.classList.add('open');
     answer.classList.add('open');
+    answer.style.maxHeight = answer.scrollHeight + 'px';
   }
 }
+window.addEventListener('resize', () => {
+  document.querySelectorAll('.faq-a.open').forEach(a => { a.style.maxHeight = a.scrollHeight + 'px'; });
+});
 
 /* ============================================================
    CONFIGURATEUR — LOGIQUE DE PRIX
@@ -3440,11 +3807,15 @@ function updateConfig() {
     `<li class="recap-item"><span class="ri-name">${l.name}</span><span class="ri-price">${fmt(l.price)}</span></li>`
   ).join('');
 
-  // Total with pop animation
+  // Total with flip/roll animation
   const totalEl = document.getElementById('totalPrice');
-  totalEl.textContent = fmt(total);
-  totalEl.style.transform = 'scale(1.06)';
-  setTimeout(() => { totalEl.style.transform = 'scale(1)'; }, 160);
+  if (window.flipTotal) {
+    window.flipTotal(total);
+  } else {
+    totalEl.textContent = fmt(total);
+    totalEl.style.transform = 'scale(1.06)';
+    setTimeout(() => { totalEl.style.transform = 'scale(1)'; }, 160);
+  }
 
   // CTA button
   document.getElementById('configCta').textContent = `Réserver — ${fmt(total)}/mois →`;
@@ -3454,6 +3825,142 @@ document.querySelectorAll('input[name="volume"]').forEach(i => i.addEventListene
 document.querySelectorAll('.options-list input').forEach(i => i.addEventListener('change', updateConfig));
 updateConfig(); // initial render
 
+/* ============================================================
+   PREMIUM MICRO-INTERACTIONS
+   ============================================================ */
+(function premiumFX() {
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const fine = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  const hasGsap = typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined';
+
+  /* ---- Flip number sur le prix total ---- */
+  window.flipTotal = function (value) {
+    const el = document.getElementById('totalPrice');
+    if (!el) return;
+    const from = el._val || 0;
+    el._val = value;
+    if (reduce || typeof gsap === 'undefined') { el.textContent = fmt(value); return; }
+    const o = { v: from };
+    gsap.killTweensOf(o);
+    gsap.to(o, { v: value, duration: 0.6, ease: 'power3.out',
+      onUpdate() { el.textContent = fmt(Math.round(o.v)); } });
+    gsap.fromTo(el, { y: -9, opacity: 0.35 }, { y: 0, opacity: 1, duration: 0.5, ease: 'back.out(2)' });
+  };
+  // re-render the total now that flip exists
+  if (typeof updateConfig === 'function') updateConfig();
+
+  /* ---- Curseur custom (cercle orange avec lag) ---- */
+  if (fine) {
+    document.body.classList.add('cursor-on');
+    const dot = document.createElement('div'); dot.className = 'cursor-dot';
+    const ring = document.createElement('div'); ring.className = 'cursor-ring';
+    document.body.appendChild(dot); document.body.appendChild(ring);
+    let mx = innerWidth / 2, my = innerHeight / 2, rx = mx, ry = my, dx = mx, dy = my, active = false;
+    window.addEventListener('mousemove', e => {
+      mx = e.clientX; my = e.clientY;
+      if (!active) { active = true; document.body.classList.add('cursor-active'); rx = dx = mx; ry = dy = my; }
+    });
+    window.addEventListener('mouseleave', () => document.body.classList.remove('cursor-active'));
+    window.addEventListener('mouseenter', () => active && document.body.classList.add('cursor-active'));
+    window.addEventListener('mousedown', () => document.body.classList.add('cursor-down'));
+    window.addEventListener('mouseup', () => document.body.classList.remove('cursor-down'));
+    const hoverSel = 'a, button, .ig-card, .opt-label, .vol-label, label, .faq-q, input';
+    document.addEventListener('mouseover', e => { if (e.target.closest(hoverSel)) document.body.classList.add('cursor-hover'); });
+    document.addEventListener('mouseout', e => { if (e.target.closest(hoverSel)) document.body.classList.remove('cursor-hover'); });
+    (function loop() {
+      dx += (mx - dx) * 0.35; dy += (my - dy) * 0.35;
+      rx += (mx - rx) * 0.16; ry += (my - ry) * 0.16;
+      dot.style.transform = `translate(${dx}px,${dy}px) translate(-50%,-50%)`;
+      ring.style.transform = `translate(${rx}px,${ry}px) translate(-50%,-50%)`;
+      requestAnimationFrame(loop);
+    })();
+  }
+
+  /* ---- Boutons magnétiques ---- */
+  if (fine && !reduce) {
+    document.querySelectorAll('.btn-gold, .nav-cta, .config-cta').forEach(btn => {
+      btn.classList.add('magnetic');
+      btn.addEventListener('mousemove', e => {
+        const r = btn.getBoundingClientRect();
+        const x = (e.clientX - r.left - r.width / 2) * 0.32;
+        const y = (e.clientY - r.top - r.height / 2) * 0.32;
+        btn.style.transform = `translate(${x}px, ${y}px)`;
+      });
+      btn.addEventListener('mouseleave', () => { btn.style.transform = ''; });
+    });
+  }
+
+  /* ---- Tilt 3D au hover sur les cards ---- */
+  if (fine && !reduce) {
+    document.querySelectorAll('.forqui-card, .ig-card, .stat-card').forEach(card => {
+      card.classList.add('tilt');
+      card.addEventListener('mousemove', e => {
+        const r = card.getBoundingClientRect();
+        const px = (e.clientX - r.left) / r.width - 0.5;
+        const py = (e.clientY - r.top) / r.height - 0.5;
+        card.style.transform = `perspective(900px) rotateY(${px * 7}deg) rotateX(${-py * 7}deg) translateY(-4px)`;
+      });
+      card.addEventListener('mouseleave', () => { card.style.transform = ''; });
+    });
+  }
+
+  /* ---- Section titles en clip-path reveal ---- */
+  const titles = document.querySelectorAll('h2.display-lg');
+  titles.forEach(t => t.classList.add('title-reveal'));
+  const titleIO = new IntersectionObserver(es => {
+    es.forEach(en => { if (en.isIntersecting) { en.target.classList.add('title-in'); titleIO.unobserve(en.target); } });
+  }, { threshold: 0.35 });
+  titles.forEach(t => titleIO.observe(t));
+
+  /* ---- Pull quote mot par mot en stagger ---- */
+  const pq = document.querySelector('.qa-pullquote');
+  if (pq) {
+    const words = pq.textContent.trim().split(/\s+/);
+    pq.innerHTML = words.map((w, i) => `<span class="w" style="transition-delay:${(i * 0.06).toFixed(2)}s">${w}</span>`).join(' ');
+    const pqIO = new IntersectionObserver(es => {
+      es.forEach(en => { if (en.isIntersecting) { pq.classList.add('wq-in'); pqIO.unobserve(pq); } });
+    }, { threshold: 0.5 });
+    pqIO.observe(pq);
+  }
+
+  /* ---- Stats : anneau SVG progress autour des chiffres ---- */
+  const statFills = [0.78, 0.64, 0.8, 0.92];
+  const statCards = document.querySelectorAll('#resultats .stat-card');
+  statCards.forEach((card, i) => {
+    const r = 46, circ = 2 * Math.PI * r;
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('class', 'stat-ring');
+    svg.setAttribute('viewBox', '0 0 100 100');
+    svg.style.setProperty('--circ', circ);
+    svg.innerHTML = `<circle class="ring-bg" cx="50" cy="50" r="${r}"></circle><circle class="ring-fg" cx="50" cy="50" r="${r}"></circle>`;
+    card.insertBefore(svg, card.firstChild);
+    card._ring = svg.querySelector('.ring-fg');
+    card._circ = circ;
+    card._fill = statFills[i % statFills.length];
+  });
+  const ringIO = new IntersectionObserver(es => {
+    es.forEach(en => {
+      if (en.isIntersecting && en.target._ring) {
+        en.target._ring.style.strokeDashoffset = en.target._circ * (1 - en.target._fill);
+        ringIO.unobserve(en.target);
+      }
+    });
+  }, { threshold: 0.5 });
+  statCards.forEach(c => ringIO.observe(c));
+
+  /* ---- Méthode : spine verticale qui se dessine au scroll ---- */
+  const spine = document.querySelector('.methode-spine');
+  if (spine) {
+    if (hasGsap) {
+      ScrollTrigger.create({
+        trigger: '.methode-steps', start: 'top 78%', end: 'bottom 72%', scrub: true,
+        onUpdate: self => spine.style.setProperty('--spine', self.progress.toFixed(3))
+      });
+    } else {
+      new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) spine.style.setProperty('--spine', 1); }), { threshold: 0.2 }).observe(spine);
+    }
+  }
+})();
 /* ============================================================
    RÉSERVATION — SUPABASE
    ============================================================ */
@@ -3738,7 +4245,440 @@ async function submitBooking(e) {
     btn.textContent = 'Confirmer mon appel →';
   }
 }
+
+/* ============================================================
+   TUNNEL DE PRÉQUALIFICATION — VARIANTE A
+   ============================================================ */
+const TRACKS = {
+  reference: {
+    label:'Référence', persona:'Expert · Dirigeant',
+    desc:'Je suis expert ou dirigeant et je veux devenir LA référence de mon domaine.',
+    pipeline:'appels_strategiques',
+    steps:[
+      { key:'domaine', type:'single', kicker:'Ton domaine', title:"Dans quel domaine es-tu expert ?",
+        options:[
+          {value:'patrimoine', label:'Patrimoine / Finance'},
+          {value:'immobilier', label:'Immobilier'},
+          {value:'droit',      label:'Droit'},
+          {value:'sante',      label:'Santé'},
+          {value:'tech',       label:'Tech / SaaS'},
+          {value:'coaching',   label:'Coaching / Conseil'},
+          {value:'autre',      label:'Autre domaine'},
+        ]},
+      { key:'niveau', type:'single', kicker:'Ta présence', title:"Où en es-tu aujourd'hui ?",
+        options:[
+          {value:'zero',           label:'Je pars de zéro', desc:'Pas encore de présence structurée'},
+          {value:'pas_structuree', label:'Présence non structurée', desc:'Je poste mais sans vraie stratégie'},
+          {value:'deja_actif',     label:'Déjà actif, passer un cap', desc:'Je produis déjà du contenu'},
+        ]},
+      { key:'objectif', type:'multi', kicker:'Ton objectif', title:"Qu'est-ce que tu veux atteindre ?", hint:'Plusieurs choix possibles',
+        options:[
+          {value:'reference', label:'Devenir une référence de mon secteur'},
+          {value:'leads',     label:'Générer des leads qualifiés'},
+          {value:'autorite',  label:'Asseoir mon autorité'},
+          {value:'offre',     label:'Lancer ou vendre une offre'},
+        ]},
+    ]
+  },
+  production: {
+    label:'Production', persona:'Créateur · Infopreneur',
+    desc:"Je crée déjà du contenu et je veux déléguer ou passer à l'échelle.",
+    pipeline:'devis',
+    steps:[
+      { key:'plateformes', type:'multi', kicker:'Tes plateformes', title:'Où publies-tu ?', hint:'Plusieurs choix possibles',
+        options:[
+          {value:'instagram', label:'Instagram'},
+          {value:'youtube',   label:'YouTube'},
+          {value:'tiktok',    label:'TikTok'},
+          {value:'linkedin',  label:'LinkedIn'},
+        ]},
+      { key:'volume', type:'single', kicker:'Ton volume', title:'Combien de contenus par mois ?',
+        options:[
+          {value:'30', label:'~30 / mois', desc:'Environ 1 vidéo par jour'},
+          {value:'60', label:'~60 / mois', desc:'Environ 2 vidéos par jour'},
+          {value:'90', label:'~90 / mois', desc:'Volume maximum'},
+        ]},
+      { key:'gestion_publication', type:'single', kicker:'Publication', title:'On gère aussi la publication ?',
+        options:[
+          {value:'true',  label:'Oui, déléguer la publication'},
+          {value:'false', label:'Non, je publie moi-même'},
+        ]},
+      { key:'niveau_service', type:'single', kicker:'Niveau de service', title:'De quoi as-tu besoin ?',
+        options:[
+          {value:'strategie',  label:'Stratégie + scripts + production', desc:'Offre complète clé en main'},
+          {value:'production', label:'Production & montage uniquement', desc:'Tu fournis les scripts'},
+        ]},
+      { key:'options', type:'multi', optional:true, kicker:'Options', title:'Des options à ajouter ?', hint:'Optionnel — passe si rien ne te correspond',
+        options:[
+          {value:'tournage',    label:'Tournage à domicile'},
+          {value:'format_long', label:'Formats longs YouTube'},
+        ]},
+    ]
+  }
+};
+
+function tnlScoreLead(track, answers) {
+  if (track === 'reference') {
+    return { score: answers.niveau === 'zero' ? 'tiède' : 'chaud', pipeline: 'appels_strategiques' };
+  } else {
+    let score = 'tiède';
+    if (answers.volume==='90' && answers.gestion_publication==='true' && answers.niveau_service==='strategie') score='chaud';
+    else if (answers.volume==='30' && answers.niveau_service==='production') score='froid';
+    return { score, pipeline: 'devis' };
+  }
+}
+
+const WD_LONG_TNL = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+const MON_FR_TNL  = ['Jan','Fév','Mar','Avr','Mai','Juin','Juil','Août','Sep','Oct','Nov','Déc'];
+const WD_FR_TNL   = ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
+const ALL_SLOTS = ['10:00','10:30','11:00','11:30','12:00','12:30','13:00','13:30',
+                   '14:00','14:30','15:00','15:30','16:00','16:30','17:00','17:30'];
+
+function tnlGetDays() {
+  const today = new Date(); today.setHours(0,0,0,0);
+  const days = [];
+  const d = new Date(today);
+  while (days.length < 14) {
+    if (d.getDay() !== 0 && d.getDay() !== 6) {
+      const y = d.getFullYear();
+      const m = String(d.getMonth()+1).padStart(2,'0');
+      const dd = String(d.getDate()).padStart(2,'0');
+      days.push({
+        dateStr: `${y}-${m}-${dd}`,
+        wd: WD_FR_TNL[d.getDay()],
+        num: d.getDate(),
+        month: MON_FR_TNL[d.getMonth()],
+        longWd: WD_LONG_TNL[d.getDay()],
+      });
+    }
+    d.setDate(d.getDate()+1);
+  }
+  return days;
+}
+
+class LucidusTunnel {
+  constructor(mount) {
+    this.mount = mount;
+    this.state = this._fresh();
+    this._render();
+  }
+
+  _fresh() {
+    return { phase:'track', track:null, stepIdx:0, answers:{}, contact:{},
+             booking:{ dayStr:null, dayLabel:null, slot:null }, submitting:false, error:null };
+  }
+
+  _steps() { return this.state.track ? TRACKS[this.state.track].steps : []; }
+  _total() { return this._steps().length + 1; }
+  _pos() {
+    const {phase,stepIdx} = this.state;
+    if (phase==='track')   return -1;
+    if (phase==='step')    return stepIdx;
+    if (phase==='contact') return this._steps().length;
+    return this._total();
+  }
+
+  _render(noAnim) {
+    this.mount.innerHTML = this._shell(noAnim);
+    this._bind();
+  }
+
+  _shell(noAnim) {
+    const s=this.state, pos=this._pos(), total=this._total();
+    const pct = pos<0 ? 0 : Math.round(pos/total*100);
+    const showBack  = s.phase!=='track' && s.phase!=='done';
+    const showCount = pos>=0 && s.phase!=='done' && s.phase!=='booking';
+    return `<div class="tnl">
+  <div class="tnl-top">
+    <div class="tnl-topbar">
+      <button class="tnl-back-btn ${showBack?'':'hidden'}" id="tnlBackBtn" aria-label="Retour">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <div class="tnl-brand">LUCIDUS<span>.</span></div>
+      <div class="tnl-step-count">${showCount?`<b>${Math.min(pos+1,total)}</b> / ${total}`:''}</div>
+    </div>
+    ${pos>=0&&s.phase!=='done'?`<div class="tnl-prog"><div class="tnl-prog-bar" style="width:${Math.max(pct,4)}%"></div></div>`:''}
+  </div>
+  <div class="tnl-body"><div class="tnl-screen${noAnim?' no-anim':''}">${this._screen()}</div></div>
+</div>`;
+  }
+
+  _screen() {
+    const {phase,stepIdx} = this.state;
+    if (phase==='track')   return this._sTrack();
+    if (phase==='step')    return this._sStep(this._steps()[stepIdx]);
+    if (phase==='contact') return this._sContact();
+    if (phase==='booking') return this._sBooking();
+    if (phase==='done')    return this._sDone();
+    return '';
+  }
+
+  _sTrack() {
+    return `<div class="tnl-kicker">Préqualification</div>
+<div class="tnl-title">Parlons de ton projet.</div>
+<div class="tnl-hint">Deux parcours — choisis celui qui te ressemble.</div>
+<div class="tnl-tracks">
+${Object.entries(TRACKS).map(([k,t])=>`  <button class="tnl-track" data-track="${k}">
+    <div class="tnl-track-persona">${t.persona}</div>
+    <div class="tnl-track-name">${t.label}</div>
+    <div class="tnl-track-desc">${t.desc}</div>
+    <span class="tnl-track-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+  </button>`).join('\n')}
+</div>`;
+  }
+
+  _sStep(step) {
+    const a=this.state.answers[step.key], isMulti=step.type==='multi';
+    const letters='ABCDEFG';
+    const opts=step.options.map((o,i)=>{
+      const sel=isMulti?(Array.isArray(a)&&a.includes(o.value)):(a===o.value);
+      return `<button class="tnl-opt${sel?' sel':''}" data-val="${o.value}">
+  <span class="tnl-opt-badge">${isMulti?(sel?'✓':'+'):letters[i]}</span>
+  <span class="tnl-opt-main"><span class="tnl-opt-name">${o.label}</span>${o.desc?`<span class="tnl-opt-desc">${o.desc}</span>`:''}</span>
+</button>`;
+    }).join('\n');
+    const canContinue = isMulti?(step.optional||(Array.isArray(a)&&a.length>0)):(a!=null);
+    return `<div class="tnl-kicker">${step.kicker}</div>
+<div class="tnl-title">${step.title}</div>
+${step.hint?`<div class="tnl-hint">${step.hint}</div>`:''}
+<div class="tnl-opts">${opts}</div>
+${isMulti?`<div class="tnl-foot"><button class="tnl-btn tnl-btn-primary" data-act="next"${canContinue?'':' disabled'}>Continuer →</button></div>`:''}`;
+  }
+
+  _sContact() {
+    const c=this.state.contact;
+    return `<div class="tnl-kicker">Tes coordonnées</div>
+<div class="tnl-title">Dernière étape avant ton créneau.</div>
+<div class="tnl-hint">Pour préparer ton appel et t'envoyer la confirmation.</div>
+<div class="tnl-field-row">
+  <div class="tnl-field"><label>Prénom *</label><input data-c="prenom" value="${c.prenom||''}" placeholder="Lucas"></div>
+  <div class="tnl-field"><label>Nom *</label><input data-c="nom" value="${c.nom||''}" placeholder="Martin"></div>
+</div>
+<div class="tnl-field"><label>Email *</label><input data-c="email" type="email" value="${c.email||''}" placeholder="lucas@exemple.fr"></div>
+<div class="tnl-field-row">
+  <div class="tnl-field"><label>Téléphone *</label><input data-c="telephone" value="${c.telephone||''}" placeholder="+33 6…"></div>
+  <div class="tnl-field"><label>@Instagram</label><input data-c="instagram" value="${c.instagram||''}" placeholder="@ton.compte"></div>
+</div>
+<div class="tnl-foot"><button class="tnl-btn tnl-btn-primary" data-act="toBooking">Choisir mon créneau →</button></div>`;
+  }
+
+  _sBooking() {
+    const s=this.state, b=s.booking;
+    const trackLabel=s.track==='reference'?'Appel stratégique':'Call de cadrage';
+    const days=tnlGetDays();
+    const takenMs=(typeof bk!=='undefined'&&bk.takenMs)?bk.takenMs:[];
+    const availSlots=b.dayStr?ALL_SLOTS.filter(t=>{
+      const [hh,mm]=t.split(':');
+      const iso=`${b.dayStr}T${hh}:${mm}:00.000Z`;
+      return !takenMs.includes(new Date(iso).getTime());
+    }):ALL_SLOTS;
+    const selDay=b.dayStr?days.find(d=>d.dateStr===b.dayStr):null;
+    return `<div class="tnl-kicker">${trackLabel}</div>
+<div class="tnl-title">Réserve ton appel.</div>
+<div class="tnl-hint">30 min en visio — gratuit, sans engagement.</div>
+<div class="tnl-bk-label">Choisis un jour</div>
+<div class="tnl-bk-days">${days.map(d=>`<button class="tnl-bk-day${b.dayStr===d.dateStr?' sel':''}" data-date="${d.dateStr}"><div class="tnl-bk-wd">${d.wd}</div><div class="tnl-bk-num">${d.num}</div><div class="tnl-bk-month">${d.month}</div></button>`).join('')}</div>
+<div class="tnl-bk-label">Créneau${selDay?` · ${selDay.wd} ${selDay.num} ${selDay.month}`:''}</div>
+<div class="tnl-bk-slots">${availSlots.map(t=>`<button class="tnl-bk-slot${b.slot===t?' sel':''}" data-slot="${t}"${!b.dayStr?' disabled':''}>${t}</button>`).join('')}</div>
+${s.error?`<div class="tnl-error">${s.error}</div>`:''}
+<div class="tnl-foot"><button class="tnl-btn tnl-btn-primary" data-act="confirm"${b.dayStr&&b.slot?'':' disabled'}>${s.submitting?'Confirmation…':'Confirmer →'}</button></div>`;
+  }
+
+  _sDone() {
+    const c=this.state.contact, b=this.state.booking;
+    return `<div class="tnl-done">
+  <div class="tnl-done-check">
+    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+  </div>
+  <h3>C'est réservé${c.prenom?', '+c.prenom:''}&nbsp;!</h3>
+  <p>On te recontacte sur WhatsApp pour le lien Google Meet. À très vite.</p>
+  <div class="tnl-done-detail">📅 ${b.dayLabel} · ${b.slot} <span>heure de Paris</span></div>
+  <div class="tnl-foot" style="margin-top:24px;"><button class="tnl-btn tnl-btn-primary" data-act="close">Retourner au site</button></div>
+</div>`;
+  }
+
+  _bind() {
+    const s=this.state;
+    const back=this.mount.querySelector('#tnlBackBtn');
+    if(back) back.addEventListener('click',()=>this._back());
+
+    if(s.phase==='track'){
+      this.mount.querySelectorAll('.tnl-track').forEach(btn=>
+        btn.addEventListener('click',()=>{ s.track=btn.dataset.track; s.phase='step'; s.stepIdx=0; this._render(); })
+      );
+    } else if(s.phase==='step'){
+      const step=this._steps()[s.stepIdx];
+      this.mount.querySelectorAll('.tnl-opt').forEach(btn=>
+        btn.addEventListener('click',()=>this._pick(step,btn.dataset.val))
+      );
+      const nxt=this.mount.querySelector('[data-act="next"]');
+      if(nxt) nxt.addEventListener('click',()=>this._next());
+    } else if(s.phase==='contact'){
+      this.mount.querySelectorAll('input[data-c]').forEach(inp=>
+        inp.addEventListener('input',e=>{ s.contact[e.target.dataset.c]=e.target.value.trim(); })
+      );
+      const toBook=this.mount.querySelector('[data-act="toBooking"]');
+      if(toBook) toBook.addEventListener('click',()=>{
+        const c=s.contact;
+        let ok=true;
+        this.mount.querySelectorAll('input[data-c]').forEach(inp=>{
+          const req=['prenom','nom','email','telephone'];
+          if(req.includes(inp.dataset.c) && !s.contact[inp.dataset.c]){
+            inp.style.borderColor='rgba(255,107,43,0.6)';
+            inp.style.boxShadow='0 0 0 3px rgba(255,107,43,0.14)';
+            ok=false;
+          }
+        });
+        if(!ok) return;
+        s.phase='booking';
+        if(typeof loadBookingData!=='undefined') loadBookingData();
+        this._render();
+      });
+    } else if(s.phase==='booking'){
+      this.mount.querySelectorAll('.tnl-bk-day').forEach(btn=>
+        btn.addEventListener('click',()=>{
+          const d=tnlGetDays().find(d=>d.dateStr===btn.dataset.date);
+          s.booking.dayStr=btn.dataset.date;
+          s.booking.dayLabel=d?`${d.longWd} ${d.num} ${d.month}`:'';
+          s.booking.slot=null;
+          this._render(true);
+        })
+      );
+      this.mount.querySelectorAll('.tnl-bk-slot').forEach(btn=>
+        btn.addEventListener('click',()=>{ s.booking.slot=btn.dataset.slot; this._render(true); })
+      );
+      const cfm=this.mount.querySelector('[data-act="confirm"]');
+      if(cfm) cfm.addEventListener('click',()=>this._confirm());
+    } else if(s.phase==='done'){
+      const cls=this.mount.querySelector('[data-act="close"]');
+      if(cls) cls.addEventListener('click',()=>closeTunnel());
+    }
+  }
+
+  _pick(step, val) {
+    const s=this.state;
+    if(step.type==='multi'){
+      let arr=Array.isArray(s.answers[step.key])?[...s.answers[step.key]]:[];
+      const i=arr.indexOf(val);
+      if(i>=0) arr.splice(i,1); else arr.push(val);
+      s.answers[step.key]=arr;
+      this._render(true);
+    } else {
+      s.answers[step.key]=val;
+      this._render(true);
+      setTimeout(()=>this._next(), 260);
+    }
+  }
+
+  _next() {
+    const s=this.state, steps=this._steps();
+    if(s.stepIdx<steps.length-1) s.stepIdx++;
+    else s.phase='contact';
+    this._render();
+  }
+
+  _back() {
+    const s=this.state;
+    if(s.phase==='step'){
+      if(s.stepIdx>0) s.stepIdx--;
+      else { s.phase='track'; s.track=null; }
+    } else if(s.phase==='contact'){
+      s.phase='step'; s.stepIdx=this._steps().length-1;
+    } else if(s.phase==='booking'){
+      s.phase='contact';
+    }
+    this._render();
+  }
+
+  async _confirm() {
+    const s=this.state;
+    if(s.submitting) return;
+    s.submitting=true; s.error=null;
+    this._render(true);
+
+    const b=s.booking, c=s.contact, a=s.answers;
+    const [hh,mm]=b.slot.split(':');
+    const iso=`${b.dayStr}T${hh}:${mm}:00.000Z`;
+    const {score,pipeline}=tnlScoreLead(s.track,a);
+
+    const ansArr=[
+      {question:'Track',           answer:s.track},
+      {question:'Score',           answer:score},
+      {question:'Pipeline',        answer:pipeline},
+      {question:'Domaine',         answer:a.domaine||''},
+      {question:'Niveau',          answer:a.niveau||''},
+      {question:'Objectif',        answer:Array.isArray(a.objectif)?a.objectif.join(', '):(a.objectif||'')},
+      {question:'Plateformes',     answer:Array.isArray(a.plateformes)?a.plateformes.join(', '):(a.plateformes||'')},
+      {question:'Volume',          answer:a.volume||''},
+      {question:'Niveau service',  answer:a.niveau_service||''},
+      {question:'Options',         answer:Array.isArray(a.options)?a.options.join(', '):(a.options||'')},
+    ].filter(x=>x.answer);
+
+    try {
+      const res=await sbPost('/rest/v1/rpc/submit_booking',{
+        p_name:`${c.prenom} ${c.nom}`,
+        p_email:c.email,
+        p_whatsapp:c.telephone,
+        p_starts_at:iso,
+        p_comment:null,
+        p_answers:ansArr,
+      });
+      if(res&&res.code) throw new Error(res.message||'Créneau indisponible');
+
+      /* best-effort lead insert (table may not exist yet) */
+      sbPost('/rest/v1/leads',{
+        track:s.track, domaine:a.domaine||null, niveau:a.niveau||null,
+        objectif:a.objectif||null, plateformes:a.plateformes||null,
+        volume:a.volume||null,
+        gestion_publication:a.gestion_publication!=null?(a.gestion_publication==='true'):null,
+        niveau_service:a.niveau_service||null, options:a.options||null,
+        nom:c.nom||null, prenom:c.prenom||null, email:c.email||null,
+        telephone:c.telephone||null, instagram:c.instagram||null,
+        score, pipeline,
+      }).catch(()=>{});
+
+      s.phase='done';
+    } catch(err) {
+      s.error=err.message?.includes('pris')||err.message?.includes('taken')
+        ? "Ce créneau vient d'être pris. Choisis-en un autre."
+        : (err.message||'Une erreur est survenue. Réessaie.');
+      if(s.error.includes("vient d'être")){
+        if(typeof loadBookingData!=='undefined') await loadBookingData();
+        s.booking.slot=null;
+      }
+    }
+    s.submitting=false;
+    this._render(true);
+  }
+}
+
+let _tnl=null;
+function openTunnel(){
+  const pg=document.getElementById('tunnelPage');
+  if(!_tnl) _tnl=new LucidusTunnel(document.getElementById('tnlMount'));
+  else { _tnl.state=_tnl._fresh(); _tnl._render(); }
+  pg.scrollTop=0; pg.classList.add('open');
+  document.body.style.overflow='hidden';
+  if(typeof lenis!=='undefined'&&lenis) lenis.stop();
+  if(typeof loadBookingData!=='undefined') loadBookingData();
+}
+function closeTunnel(){
+  document.getElementById('tunnelPage').classList.remove('open');
+  document.body.style.overflow='';
+  if(typeof lenis!=='undefined'&&lenis) lenis.start();
+}
 </script>
+
+
+<!-- ======================================================
+     TUNNEL DE PRÉQUALIFICATION (slide-in, variante A)
+     ====================================================== -->
+<div class="ig-page" id="tunnelPage" style="z-index:1002;">
+  <div class="tnl-wrap">
+    <div id="tnlMount"></div>
+  </div>
+</div>
+
 
 </body>
 </html>
