@@ -2424,6 +2424,74 @@ body.cursor-down .cursor-ring { width: 30px; height: 30px; }
 </head>
 <body>
 
+<!-- ============================================================
+     RENOVATION OVERLAY — retirer ce bloc le 12 juillet 2026
+     ============================================================ -->
+<div id="renovationOverlay" style="
+  position:fixed;inset:0;z-index:99999;
+  background:#FAFAF8;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Inter',system-ui,sans-serif;
+  overflow:hidden;
+">
+  <!-- Aurora déco -->
+  <div style="position:absolute;inset:0;pointer-events:none;overflow:hidden">
+    <div style="position:absolute;width:700px;height:700px;top:-200px;left:-200px;border-radius:50%;background:radial-gradient(circle,rgba(255,107,43,.18) 0%,transparent 70%);filter:blur(60px)"></div>
+    <div style="position:absolute;width:600px;height:600px;bottom:-150px;right:-150px;border-radius:50%;background:radial-gradient(circle,rgba(255,107,43,.12) 0%,transparent 70%);filter:blur(80px)"></div>
+  </div>
+
+  <!-- Card centrale -->
+  <div style="
+    position:relative;
+    background:rgba(255,255,255,0.65);
+    backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+    border:1px solid rgba(255,255,255,0.8);
+    border-radius:24px;
+    padding:56px 64px;
+    max-width:520px;width:90%;
+    text-align:center;
+    box-shadow:0 8px 48px rgba(14,14,14,.08);
+  ">
+    <!-- Logo -->
+    <div style="font-size:1.4rem;font-weight:700;letter-spacing:-.03em;color:#0E0E0E;margin-bottom:40px">
+      Lucidus<span style="color:#FF6B2B">.</span>
+    </div>
+
+    <!-- Icône -->
+    <div style="margin-bottom:28px">
+      <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="24" cy="24" r="23" stroke="#FF6B2B" stroke-width="1.5" opacity=".25"/>
+        <path d="M16 24h4l3-8 4 16 3-10 2 2h4" stroke="#FF6B2B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+
+    <!-- Titre -->
+    <h1 style="font-size:clamp(1.5rem,4vw,2rem);font-weight:700;letter-spacing:-.03em;color:#0E0E0E;margin:0 0 16px;line-height:1.2">
+      Site en r&#233;novation
+    </h1>
+
+    <!-- Sous-titre -->
+    <p style="font-size:1rem;color:#6B7280;line-height:1.6;margin:0 0 32px">
+      Une nouvelle version arrive le&nbsp;
+      <span style="color:#FF6B2B;font-weight:600;white-space:nowrap">12 juillet 2026</span>.
+      <br>En attendant, contacte-nous directement.
+    </p>
+
+    <!-- CTA email -->
+    <a href="mailto:andrea.lvaillant@gmail.com" style="
+      display:inline-flex;align-items:center;gap:8px;
+      background:#FF6B2B;color:#fff;
+      padding:14px 28px;border-radius:12px;
+      text-decoration:none;font-size:.95rem;font-weight:600;
+      letter-spacing:-.01em;
+    ">
+      Nous contacter
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+  </div>
+</div>
+<!-- FIN RENOVATION OVERLAY -->
+
 <!-- Champ de texture de fond : aurora chaud + grille blueprint -->
 <div class="bg-field" aria-hidden="true">
   <div class="bg-grid"></div>
