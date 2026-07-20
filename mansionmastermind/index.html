@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<title>Mansion Mastermind — Régie</title>
+<style>
+
+:root{
+  --bg:#0E1013; --surface:#16191E; --surface2:#1D2127; --surface3:#23272E;
+  --border:#262B32; --border2:#333A43;
+  --text:#ECEDEF; --dim:#9BA1AB; --faint:#5F6771;
+  --accent:#6E9BC5; --accent-dim:#3B546E;
+  --mono:ui-monospace,"SF Mono",Menlo,monospace;
+  --sans:-apple-system,"SF Pro Display","SF Pro Text",system-ui,sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+.mm{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;
+  font-size:14px;line-height:1.45;letter-spacing:-0.01em}
+.mm ::-webkit-scrollbar{width:8px;height:8px}
+.mm ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.wrap{max-width:1120px;margin:0 auto;padding:0 16px}
+.ed{outline:none;border-radius:4px;padding:0 3px;margin:0 -3px;cursor:text;transition:background .12s}
+.ed:hover{background:var(--surface2)}
+.ed:focus{background:var(--surface2);box-shadow:inset 0 0 0 1px var(--accent-dim)}
+.ed:empty::before{content:attr(data-ph);color:var(--faint)}
+@media print{ .ed:hover,.ed:focus{background:transparent;box-shadow:none} }
+
+/* top bar */
+.top{position:sticky;top:0;z-index:20;background:rgba(14,16,19,.86);
+  backdrop-filter:blur(14px);border-bottom:1px solid var(--border)}
+.top-in{display:flex;align-items:center;gap:14px;padding:12px 16px;max-width:1120px;margin:0 auto}
+.brand{display:flex;flex-direction:column;line-height:1.05}
+.brand b{font-size:15px;font-weight:640;letter-spacing:-0.02em}
+.brand span{font-size:10.5px;color:var(--faint);font-family:var(--mono);letter-spacing:.04em;text-transform:uppercase}
+.tabs{display:flex;gap:2px;margin-left:auto;background:var(--surface);border:1px solid var(--border);
+  border-radius:10px;padding:3px}
+.tab{border:0;background:transparent;color:var(--dim);font-family:var(--sans);font-size:13px;
+  font-weight:540;padding:7px 13px;border-radius:7px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:.15s}
+.tab:hover{color:var(--text)}
+.tab.on{background:var(--surface3);color:var(--text)}
+
+/* day rail */
+.days{display:flex;gap:6px;padding:16px 0 10px;overflow-x:auto}
+.day{flex:0 0 auto;border:1px solid var(--border);background:var(--surface);border-radius:11px;
+  padding:9px 14px;cursor:pointer;min-width:118px;transition:.15s}
+.day:hover{border-color:var(--border2)}
+.day.on{border-color:var(--accent-dim);background:var(--surface2)}
+.day .dnum{font-family:var(--mono);font-size:11px;color:var(--faint);letter-spacing:.05em}
+.day .dttl{font-size:13.5px;font-weight:600;margin-top:2px}
+.day .dsub{font-size:11px;color:var(--dim);margin-top:1px}
+.day.on .dnum{color:var(--accent)}
+
+/* run & gun band */
+.rgband{border:1px solid var(--border);background:var(--surface);border-radius:14px;
+  padding:14px 16px;margin:2px 0 8px}
+.rgband-h{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.rgtag{font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--accent);
+  border:1px solid var(--accent-dim);border-radius:5px;padding:2px 6px;text-transform:uppercase}
+.rgband-h b{font-size:13px;font-weight:600}
+.rgband-h span{font-size:11.5px;color:var(--faint);margin-left:auto}
+.rgcards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.rgcard{border:1px solid var(--border);border-radius:11px;padding:11px;background:var(--bg)}
+.rgcard-top{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.rgcard-top .cavatar{width:22px;height:22px;border-radius:6px}
+.rgcard b{font-size:12.5px;font-weight:600}
+.rgfollows{font-size:12.5px;font-weight:560;color:var(--accent);margin-bottom:3px}
+.rgnote{font-size:11.5px;color:var(--dim);line-height:1.4}
+.rgarrow{font-size:10px;color:var(--faint)}
+.csobj{display:flex;gap:10px;align-items:flex-start;padding:14px 22px;border-bottom:1px solid var(--border);background:var(--surface2)}
+.csobj-name{font-size:13.5px;font-weight:640;color:var(--accent)}
+.csobj-obj{font-size:12px;color:var(--dim);margin-top:2px;line-height:1.45}
+.rgbadge{font-family:var(--mono);font-size:8.5px;letter-spacing:.05em;color:var(--accent);
+  border:1px solid var(--accent-dim);border-radius:4px;padding:1px 4px;margin-left:5px}
+@media(max-width:720px){.rgcards{grid-template-columns:1fr}}
+
+/* slot rows */
+.grid{padding-bottom:80px}
+.addslot{margin-top:16px;width:100%;border:1px dashed var(--border2);background:transparent;color:var(--dim);
+  font-family:var(--sans);font-size:13px;font-weight:540;padding:12px;border-radius:12px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:7px;transition:.14s}
+.addslot:hover{border-color:var(--accent-dim);color:var(--text);background:var(--surface)}
+.stime .tinput{width:70px}
+.stime{display:flex;flex-direction:column;gap:4px;align-items:flex-start}
+.slot{display:grid;grid-template-columns:82px 1fr;gap:12px;padding:14px 0;
+  border-top:1px solid var(--border)}
+.slot:first-child{border-top:0}
+.stime{font-family:var(--mono);font-size:13px;color:var(--text);padding-top:1px;letter-spacing:-.02em}
+.stime .end{color:var(--faint);font-size:11px}
+.sbody{min-width:0}
+.shead{display:flex;align-items:flex-start;gap:9px;cursor:pointer}
+.stype{flex:0 0 auto;width:26px;height:26px;border-radius:7px;display:flex;align-items:center;
+  justify-content:center;background:var(--surface2);color:var(--dim);margin-top:1px}
+.stitle{font-size:14.5px;font-weight:560;letter-spacing:-.01em}
+.sspk{font-size:12.5px;color:var(--accent);font-weight:540;margin-top:1px}
+.snote{font-size:12px;color:var(--dim);margin-top:2px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
+.chip{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:4px 10px 4px 7px;
+  font-size:12px;font-weight:540;border:1px solid var(--border2);background:var(--surface)}
+.chip .dot{width:8px;height:8px;border-radius:50%;flex:0 0 auto}
+.chip .role{color:var(--dim);font-weight:440;font-size:11.5px}
+.chip.empty{color:var(--faint);border-style:dashed;cursor:pointer;font-weight:480}
+.chip.empty:hover{color:var(--dim);border-color:var(--border2)}
+
+/* assign panel */
+.overlay{position:fixed;inset:0;background:rgba(6,7,9,.62);backdrop-filter:blur(3px);z-index:40;
+  display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--surface);border:1px solid var(--border);border-bottom:0;
+  border-radius:18px 18px 0 0;width:100%;max-width:560px;max-height:86vh;overflow:auto;
+  padding:18px 18px 26px;animation:up .22s cubic-bezier(.2,.8,.2,1)}
+@keyframes up{from{transform:translateY(24px);opacity:.4}to{transform:none;opacity:1}}
+.sheet-h{display:flex;align-items:flex-start;gap:10px;margin-bottom:4px}
+.sheet-h .stitle{font-size:16px}
+.xbtn{margin-left:auto;border:0;background:var(--surface2);color:var(--dim);width:30px;height:30px;
+  border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.plabel{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--faint);
+  font-family:var(--mono);margin:16px 0 8px}
+.crewrow{display:flex;align-items:center;gap:10px;padding:8px;border-radius:10px;border:1px solid transparent;transition:.12s}
+.crewrow.sel{background:var(--surface2);border-color:var(--border2)}
+.cbox{width:22px;height:22px;border-radius:6px;border:1.5px solid var(--border2);flex:0 0 auto;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.12s}
+.cavatar{width:24px;height:24px;border-radius:7px;flex:0 0 auto;display:flex;align-items:center;
+  justify-content:center;font-size:11px;font-weight:700;color:#0E1013}
+.cname{font-size:13.5px;font-weight:560}
+.cgear{font-size:11px;color:var(--faint)}
+.rinput{margin-left:auto;background:var(--bg);border:1px solid var(--border2);border-radius:8px;
+  color:var(--text);font-family:var(--sans);font-size:12px;padding:6px 9px;width:150px;outline:none}
+.rinput::placeholder{color:var(--faint)}
+.rinput:focus{border-color:var(--accent-dim)}
+
+/* call sheets */
+.csgrid{display:grid;grid-template-columns:200px 1fr;gap:20px;padding:16px 0 80px}
+.csrail{display:flex;flex-direction:column;gap:5px}
+.csperson{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:11px;border:1px solid var(--border);
+  background:var(--surface);cursor:pointer;text-align:left;transition:.14s}
+.csperson:hover{border-color:var(--border2)}
+.csperson.on{border-color:var(--accent-dim);background:var(--surface2)}
+.csmain{min-width:0}
+.cscard{border:1px solid var(--border);background:var(--surface);border-radius:16px;overflow:hidden}
+.cstop{padding:20px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:14px}
+.csbig{width:48px;height:48px;border-radius:13px;display:flex;align-items:center;justify-content:center;
+  font-size:19px;font-weight:800;color:#0E1013;flex:0 0 auto}
+.csname{font-size:20px;font-weight:680;letter-spacing:-.02em}
+.csrole{font-size:12.5px;color:var(--accent);font-weight:560}
+.csgear{font-size:12px;color:var(--dim);margin-top:3px}
+.csday{padding:14px 22px;border-top:1px solid var(--border)}
+.csday:first-of-type{border-top:0}
+.csdayh{font-family:var(--mono);font-size:11px;letter-spacing:.05em;color:var(--faint);
+  text-transform:uppercase;margin-bottom:10px}
+.csline{display:grid;grid-template-columns:58px 1fr;gap:12px;padding:7px 0;border-top:1px dashed var(--border)}
+.csline:first-of-type{border-top:0}
+.csl-t{font-family:var(--mono);font-size:12px;color:var(--dim)}
+.tinput{font-family:var(--mono);font-size:12px;color:var(--text);background:var(--surface2);
+  border:1px solid var(--border2);border-radius:7px;padding:4px 6px;width:74px;outline:none;cursor:pointer}
+.tinput:focus{border-color:var(--accent-dim)}
+.tinput.edited{border-color:var(--accent);color:var(--accent)}
+.trevert{display:block;margin-top:4px;border:0;background:transparent;color:var(--faint);
+  font-family:var(--mono);font-size:10px;cursor:pointer;padding:0}
+.trevert:hover{color:var(--accent)}
+.csl-ttl{font-size:13.5px;font-weight:560}
+.csl-role{font-size:12px;color:var(--accent);margin-top:1px}
+.roleinput{font-family:var(--sans);font-size:12px;color:var(--accent);background:transparent;
+  border:0;border-bottom:1px dashed var(--border2);padding:2px 1px;min-width:220px;width:80%;outline:none}
+.roleinput::placeholder{color:var(--faint)}
+.roleinput:focus{border-bottom-color:var(--accent)}
+.csl-spk{font-size:11.5px;color:var(--faint)}
+.empty-cs{padding:40px 22px;text-align:center;color:var(--faint);font-size:13px}
+
+/* charte */
+.charte{padding:16px 0 80px;max-width:820px}
+.crow{display:flex;gap:12px;padding:13px 0;border-top:1px solid var(--border)}
+.crow:first-child{border-top:0}
+.cnum{font-family:var(--mono);font-size:11px;color:var(--accent);padding-top:2px;flex:0 0 24px}
+.ctxt{flex:1;font-size:13.5px;line-height:1.5}
+.ctxt b{font-weight:620}
+.cdel{border:0;background:transparent;color:var(--faint);cursor:pointer;padding:2px;flex:0 0 auto;opacity:0;transition:.12s}
+.crow:hover .cdel{opacity:1}
+.addline{display:flex;gap:8px;margin-top:14px}
+.addline input{flex:1;background:var(--surface);border:1px solid var(--border2);border-radius:10px;
+  color:var(--text);font-family:var(--sans);font-size:13px;padding:10px 12px;outline:none}
+.addline input:focus{border-color:var(--accent-dim)}
+.btn{border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-family:var(--sans);
+  font-size:13px;font-weight:560;padding:9px 15px;border-radius:10px;cursor:pointer;display:inline-flex;
+  align-items:center;gap:7px;transition:.14s}
+.btn:hover{border-color:var(--accent-dim)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#0B1016;font-weight:640}
+.ackwrap{margin-top:34px;border-top:1px solid var(--border);padding-top:20px}
+.ackh{font-size:13px;font-weight:620;margin-bottom:3px}
+.acksub{font-size:12px;color:var(--dim);margin-bottom:14px}
+.ackgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px}
+.ackitem{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--border);
+  border-radius:11px;background:var(--surface);cursor:pointer;transition:.14s}
+.ackitem.ok{border-color:#3f5f45;background:#141a15}
+.ackdot{width:22px;height:22px;border-radius:6px;border:1.5px solid var(--border2);flex:0 0 auto;
+  display:flex;align-items:center;justify-content:center;transition:.12s}
+.ackitem.ok .ackdot{background:#4a7a52;border-color:#4a7a52;color:#0E1013}
+
+/* print */
+@media print{
+  .top,.csrail,.no-print{display:none!important}
+  .mm{background:#fff;color:#000}
+  .csgrid{grid-template-columns:1fr;padding:0}
+  .cscard{border-color:#ccc}
+  .csrole,.csl-role,.sspk{color:#333}
+  .cavatar,.csbig{print-color-adjust:exact;-webkit-print-color-adjust:exact}
+}
+@media(max-width:720px){
+  .csgrid{grid-template-columns:1fr}
+  .csrail{flex-direction:row;overflow-x:auto;padding-bottom:4px}
+  .csperson{flex:0 0 auto;min-width:150px}
+  .rinput{width:120px}
+}
+
+body{margin:0}
+</style>
+</head>
+<body class="mm">
+<div id="app"></div>
+<script>
+const CREW = [
+  { id:"audric",   name:"Audric",   role:"Duo Drone · ralenti · interview & intervention (Benjamin)", gear:"Sony A7S3 · Mavic 4 Pro · RODE Go", color:"#6E9BC5" },
+  { id:"heppi",    name:"Benjamin", role:"Duo Drone · ralenti · interview & intervention (Audric)", gear:"GH6 · Pocket 3 · 2× DJI Mini 5 Pro · Atomos · DJI Mic · ND/CPL", color:"#C48A9A" },
+  { id:"eliot",    name:"Eliot",    role:"Duo Run & Gun — émotion / moment / voiture (Martin)", gear:"Sony A7IV · RS4 · Insta360 · light", color:"#5CA8A0", mode:"rg" },
+  { id:"martin",   name:"Martin",   role:"Duo Run & Gun — émotion / moment / voiture (Eliot)",  gear:"Sony A7IV · 28-75 + 16-30 · RODE NTG", color:"#8FAE7E", mode:"rg" },
+  { id:"max",      name:"Max",      role:"Duo Photo & B-roll VIP (Dylan)", gear:"Fuji X100VI", color:"#D8D4CC" },
+  { id:"dylan",    name:"Dylan",    role:"Duo Photo & B-roll VIP (Max) · ITW shorts midi", gear:"À confirmer", color:"#6FB0B8" },
+  { id:"jerem",    name:"Jérém",    role:"Duo Follow intervenant (Dan)", gear:"À confirmer", color:"#8A8F98" },
+  { id:"dan",      name:"Dan",      role:"Duo Follow intervenant (Jérém)", gear:"À confirmer", color:"#C7A15A" },
+  { id:"saoud",    name:"Rayan",    role:"Follow Ethan & famille · ITW shorts midi (Dylan)", gear:"Sony A7RV · Canon R6II · RS3 mini", color:"#9B8CC4" },
+];
+const CREW_BY_ID = Object.fromEntries(CREW.map(c=>[c.id,c]));
+
+
+const DAYS = [
+  { id:"d1", num:"J1 · Lun 20", ttl:"Santé & Performance", sub:"Ouverture · 5 talks" },
+  { id:"d2", num:"J2 · Mar 21", ttl:"Marketing & Scale",   sub:"3 talks · Tai Lopez" },
+  { id:"d3", num:"J3 · Mer 22", ttl:"Média & Clôture",     sub:"Clôture · cocktail" },
+  { id:"d4", num:"J4 · Jeu 23", ttl:"VIP Boat Day",        sub:"M/Y Antisan" },
+];
+
+const PROGRAM = {
+  d1:[
+    { id:"d1-0700", t:"07:00", e:"09:30", type:"prod", title:"Establishing · palace vide", note:"Avant les invités. Drone extérieur + intérieurs vides + détails lieu." },
+    { id:"d1-1000", t:"10:00", type:"prod", title:"Accueil & arrivées participants", note:"Arrivées voitures, check-in, premières poignées de main." },
+    { id:"d1-1100", t:"11:00", type:"talk", title:"Ouverture & présentation", spk:"Ethan Duvin" },
+    { id:"d1-1130", t:"11:30", type:"talk", title:"Vivre jusqu'à 120 ans", spk:"Adam Swift" },
+    { id:"d1-1230", t:"12:30", type:"talk", title:"Optimiser sa santé pour performer", spk:"Flavio Guionneau" },
+    { id:"d1-1300", t:"13:00", type:"vip",  title:"Déjeuner privé", spk:"Yomi Denzel", note:"VIP · empreinte discrète, captation feutrée." },
+    { id:"d1-1330", t:"13:30", type:"meal", title:"Pause déjeuner", note:"Fenêtre B-roll détails / repos cartes." },
+    { id:"d1-int",  t:"14:00", type:"interview", title:"Interviews intervenants", note:"Créneau flottant · matin des talks passés." },
+    { id:"d1-1500", t:"14:45", type:"talk", title:"Conférence", spk:"Yomi Denzel" },
+    { id:"d1-1600", t:"16:00", type:"talk", title:"Conférence", spk:"Taylor Chiche" },
+    { id:"d1-1700", t:"17:00", type:"net",  title:"Networking & cocktail terrasse" },
+    { id:"d1-gold", t:"21:00", type:"gold", title:"Golden hour", note:"Coucher ~21:15. TOUT LE MONDE tourne. Zéro déchargement de carte." },
+    { id:"d1-2000", t:"20:00", type:"vip",  title:"Dîner privé intervenants", note:"VIP" },
+    { id:"d1-reel", t:"23:30", type:"prod", title:"Reel J+0 + double backup", note:"Martin étant en run & gun toute la journée : rushes → équipe Togo pour montage overnight, OU sélection rapide sur place. Double backup obligatoire avant de dormir." },
+  ],
+  d2:[
+    { id:"d2-0900", t:"09:00", type:"prod", title:"B-roll matin · lieu réveillé", note:"Lumière douce, détails setup salle." },
+    { id:"d2-1000", t:"10:00", type:"prod", title:"Accueil & ouverture Jour 2" },
+    { id:"d2-1100", t:"11:00", type:"talk", title:"Conférence", spk:"Tugan Bara" },
+    { id:"d2-1200", t:"12:00", type:"talk", title:"Conférence", spk:"Matis Clouet" },
+    { id:"d2-1330", t:"13:30", type:"vip",  title:"Déjeuner + déjeuner privé", note:"Premium" },
+    { id:"d2-int",  t:"14:00", type:"interview", title:"Interviews intervenants", note:"Créneau flottant." },
+    { id:"d2-1450", t:"14:50", e:"15:00", type:"talk", title:"Sponsor — Whop", note:"10 min · capter logo, CTA, réaction salle." },
+    { id:"d2-1500", t:"15:00", type:"talk", title:"Conférence", spk:"Tai Lopez" },
+    { id:"d2-1730", t:"17:30", type:"net",  title:"Networking & cocktail terrasse" },
+    { id:"d2-gold", t:"21:00", type:"gold", title:"Golden hour", note:"Tout le monde tourne." },
+    { id:"d2-2000", t:"20:00", type:"vip",  title:"Dîner privé intervenants", note:"VIP" },
+    { id:"d2-reel", t:"23:30", type:"prod", title:"Reel J+0 + backup", note:"Rushes → Togo overnight ou sélection sur place. Double backup avant de dormir." },
+  ],
+  d3:[
+    { id:"d3-1000", t:"10:00", type:"prod", title:"Accueil & ouverture Jour 3" },
+    { id:"d3-1100", t:"11:00", type:"talk", title:"Média & storytelling", spk:"Silouane Pascal" },
+    { id:"d3-1200", t:"12:00", type:"talk", title:"Conférence (2e talk)", spk:"Tai Lopez" },
+    { id:"d3-1330", t:"13:30", type:"vip",  title:"Déjeuner + déjeuner privé", note:"Premium" },
+    { id:"d3-int",  t:"14:00", type:"interview", title:"Interviews de clôture", note:"Bilans intervenants + participants." },
+    { id:"d3-1440", t:"14:40", e:"15:00", type:"talk", title:"Sponsor — Welya", note:"20 min · logo + CTA." },
+    { id:"d3-1500", t:"15:00", type:"talk", title:"Session de clôture & remerciements", spk:"Ethan Duvin" },
+    { id:"d3-1700", t:"17:00", e:"23:00", type:"net", title:"Cocktail de clôture & networking libre", note:"Longue fenêtre · ambiance, témoignages à chaud, teaser." },
+    { id:"d3-gold", t:"21:00", type:"gold", title:"Golden hour + teaser clôture", note:"Tout le monde tourne." },
+  ],
+  d4:[
+    { id:"d4-1030", t:"10:30", type:"prod", title:"Départ port · embarquement", note:"Détails yacht, montée à bord, largage des amarres." },
+    { id:"d4-1100", t:"11:00", e:"19:00", type:"boat", title:"VIP Boat Day — M/Y Antisan", note:"Jet-ski · paddle · snorkeling · jacuzzi. Fenêtre longue, run & gun." },
+    { id:"d4-drone",t:"13:00", type:"prod", title:"Drone · sillage & orbite bateau", note:"Mer calme midi. Plans signature aftermovie." },
+    { id:"d4-gold", t:"18:30", type:"gold", title:"Golden hour retour", note:"Meilleur moment de l'event. Tout le monde dessus." },
+  ],
+};
+
+// Pôles — 4 duos + Ryan, chacun avec son objectif
+const DUOS = [
+  { crew:["max","dylan"], name:"Photo & B-roll VIP", obj:"Documenter le mastermind et le club : photos de l'event + expérience client pour les membres VIP." },
+  { crew:["eliot","martin"], name:"Run & Gun — émotion / moment / voiture", obj:"Plans séquence + angles originaux pendant les confs, pour le documentaire." },
+  { crew:["audric","heppi"], name:"Drone · ralenti · interview (in house) & intervention", obj:"Plans séquence + captation des talks & interventions." },
+  { crew:["jerem","dan"], name:"Follow intervenant", obj:"Plans insights. Ne pas hésiter à interagir avec eux." },
+  { crew:["saoud"], name:"Follow Ethan & famille", obj:"Plans insights, interagir. Midi : ITW pour les shorts avec Dylan." },
+];
+const DUO_OF = {};
+DUOS.forEach(d=>d.crew.forEach(id=>DUO_OF[id]=d));
+
+// Pré-affectations (dispatch validé) — éditables
+const DEFAULT_ASSIGN = {
+  "d1-0700":[["audric","Drone establishing"],["heppi","Drone 2 + ralenti"],["eliot","Run & gun — lieu / détails"],["martin","Run & gun — lieu / détails"],["max","Photo lieux"],["dylan","B-roll VIP setup"]],
+  "d1-1000":[["eliot","Run & gun — voitures / arrivées"],["martin","Run & gun — voitures / arrivées"],["audric","Drone arrivées"],["heppi","Ralenti voitures"],["jerem","Follow intervenant — arrivée"],["dan","Follow intervenant — arrivée"],["saoud","Ethan & famille — arrivée"],["max","Photo arrivées"],["dylan","Photo + B-roll VIP"]],
+  "d1-1100":[["audric","Large fixe SÉCU"],["heppi","Serré + ralenti"],["eliot","Run & gun — émotion / angles"],["martin","Run & gun — angles originaux"],["jerem","Follow Ethan — insights"],["dan","Follow Ethan — insights"],["saoud","Famille — réactions"],["max","Photo"],["dylan","Photo + B-roll VIP"]],
+  "d1-1130":[["audric","Large fixe SÉCU"],["heppi","Serré + ralenti"],["eliot","Run & gun — émotion / angles"],["martin","Run & gun — angles originaux"],["jerem","Follow Adam — insights"],["dan","Follow Adam — insights"],["max","Photo"],["dylan","Photo + B-roll VIP"]],
+  "d1-1230":[["audric","Large fixe SÉCU"],["heppi","Serré + ralenti"],["eliot","Run & gun — émotion / angles"],["martin","Run & gun — angles originaux"],["jerem","Follow Flavio — insights"],["dan","Follow Flavio — insights"],["max","Photo"],["dylan","Photo + B-roll VIP"]],
+  "d1-1300":[["saoud","Ethan & famille + ITW shorts (Dylan)"],["dylan","ITW shorts (Ryan) + Photo VIP"],["max","Photo VIP"]],
+  "d1-1330":[["saoud","Ethan & famille"],["max","Photo"],["dylan","Photo + B-roll VIP"]],
+  "d1-int":[["heppi","ITW in-house — cadre"],["audric","ITW in-house — 2e cam / ralenti"],["jerem","Son + questions"],["dan","Follow / renfort"]],
+  "d1-1500":[["audric","Large fixe SÉCU"],["heppi","Serré + ralenti"],["eliot","Run & gun — émotion / angles"],["martin","Run & gun — angles originaux"],["jerem","Follow Yomi — insights"],["dan","Follow Yomi — insights"],["max","Photo"],["dylan","Photo + B-roll VIP"]],
+  "d1-1600":[["audric","Large fixe SÉCU"],["heppi","Serré + ralenti"],["eliot","Run & gun — émotion / angles"],["martin","Run & gun — angles originaux"],["jerem","Follow Taylor — insights"],["dan","Follow Taylor — insights"],["max","Photo"],["dylan","Photo + B-roll VIP"]],
+  "d1-1700":[["saoud","Ethan & famille"],["eliot","Run & gun — moment / ambiance"],["martin","Run & gun — moment / ambiance"],["jerem","Follow intervenant"],["dan","Follow intervenant"],["max","Photo"],["dylan","Photo + B-roll VIP"]],
+  "d1-gold":[["audric","Drone"],["heppi","Drone 2 + ralenti"],["eliot",""],["martin",""],["jerem",""],["dan",""],["saoud",""],["max",""],["dylan",""]],
+  "d1-2000":[["saoud","Ethan & famille"],["max","Photo"],["dylan","Photo + B-roll VIP"]],
+  "d1-reel":[],
+
+  "d2-0900":[["audric","Drone lieu"],["heppi","Drone 2 + b-roll matin"],["eliot","Run & gun — détails"],["martin","Run & gun — détails"]],
+  "d2-1000":[["eliot","Run & gun — voitures / arrivées"],["martin","Run & gun — arrivées"],["audric","Drone"],["heppi","Ralenti"],["jerem","Follow intervenant"],["dan","Follow intervenant"],["saoud","Ethan & famille"],["max","Photo"],["dylan","Photo + B-roll VIP"]],
+  "d2-1100":[["audric","Large fixe SÉCU"],["heppi","Serré + ralenti"],["eliot","Run & gun — émotion / angles"],["martin","Run & gun — angles originaux"],["jerem","Follow Tugan — insights"],["dan","Follow Tugan — insights"],["max","Photo"],["dylan","Photo + B-roll VIP"]],
+  "d2-1200":[["audric","Large fixe SÉCU"],["heppi","Serré + ralenti"],["eliot","Run & gun — émotion / angles"],["martin","Run & gun — angles originaux"],["jerem","Follow Matis — insights"],["dan","Follow Matis — insights"],["max","Photo"],["dylan","Photo + B-roll VIP"]],
+  "d2-1330":[["saoud","Ethan & famille + ITW shorts (Dylan)"],["dylan","ITW shorts (Ryan) + Photo VIP"],["max","Photo VIP"]],
+  "d2-int":[["heppi","ITW in-house — cadre"],["audric","ITW in-house — 2e cam / ralenti"],["jerem","Son + questions"],["dan","Follow / renfort"]],
+  "d2-1450":[["audric","Large fixe"],["heppi","Serré + ralenti"],["eliot","Run & gun — réaction salle"],["martin","Run & gun — angles"],["jerem","Follow / logo"],["dan","Follow"],["max","Photo"],["dylan","Photo + B-roll VIP"]],
+  "d2-1500":[["audric","Large fixe SÉCU"],["heppi","Serré + ralenti"],["eliot","Run & gun — émotion / angles"],["martin","Run & gun — angles originaux"],["jerem","Follow Tai — insights"],["dan","Follow Tai — insights"],["max","Photo"],["dylan","Photo + B-roll VIP"]],
+  "d2-1730":[["saoud","Ethan & famille"],["eliot","Run & gun — moment / ambiance"],["martin","Run & gun — moment / ambiance"],["jerem","Follow intervenant"],["dan","Follow intervenant"],["max","Photo"],["dylan","Photo + B-roll VIP"]],
+  "d2-gold":[["audric","Drone"],["heppi","Drone 2 + ralenti"],["eliot",""],["martin",""],["jerem",""],["dan",""],["saoud",""],["max",""],["dylan",""]],
+  "d2-2000":[["saoud","Ethan & famille"],["max","Photo"],["dylan","Photo + B-roll VIP"]],
+  "d2-reel":[],
+
+  "d3-1000":[["eliot","Run & gun — arrivées"],["martin","Run & gun — arrivées"],["audric","Drone"],["heppi","Ralenti"],["jerem","Follow intervenant"],["dan","Follow intervenant"],["saoud","Ethan & famille"],["max","Photo"],["dylan","Photo + B-roll VIP"]],
+  "d3-1100":[["audric","Large fixe SÉCU"],["heppi","Serré + ralenti"],["eliot","Run & gun — émotion / angles"],["martin","Run & gun — angles originaux"],["jerem","Follow Silouane — insights"],["dan","Follow Silouane — insights"],["max","Photo"],["dylan","Photo + B-roll VIP"]],
+  "d3-1200":[["audric","Large fixe SÉCU"],["heppi","Serré + ralenti"],["eliot","Run & gun — émotion / angles"],["martin","Run & gun — angles originaux"],["jerem","Follow Tai — insights"],["dan","Follow Tai — insights"],["max","Photo"],["dylan","Photo + B-roll VIP"]],
+  "d3-1330":[["saoud","Ethan & famille + ITW shorts (Dylan)"],["dylan","ITW shorts (Ryan) + Photo VIP"],["max","Photo VIP"]],
+  "d3-int":[["heppi","ITW in-house — cadre"],["audric","ITW in-house — 2e cam / ralenti"],["jerem","Son + questions"],["dan","Follow / renfort"]],
+  "d3-1440":[["audric","Large fixe"],["heppi","Serré + ralenti"],["eliot","Run & gun — réaction salle"],["martin","Run & gun — angles"],["jerem","Follow / logo"],["dan","Follow"],["max","Photo"],["dylan","Photo + B-roll VIP"]],
+  "d3-1500":[["audric","Large fixe SÉCU"],["heppi","Serré + ralenti — MOMENT CLÉ"],["eliot","Run & gun — émotion"],["martin","Run & gun — angles originaux"],["jerem","Follow Ethan — insights"],["dan","Follow Ethan — insights"],["saoud","Famille — réactions"],["max","Photo"],["dylan","Photo + B-roll VIP"]],
+  "d3-1700":[["saoud","Ethan & famille"],["eliot","Run & gun — moment / teaser"],["martin","Run & gun — moment / teaser"],["jerem","Follow intervenant"],["dan","Follow intervenant"],["max","Photo"],["dylan","Photo + B-roll VIP"]],
+  "d3-gold":[["audric","Drone"],["heppi","Drone 2 + ralenti"],["eliot",""],["martin",""],["jerem",""],["dan",""],["saoud",""],["max",""],["dylan",""]],
+
+  "d4-1030":[["audric","Drone départ port"],["heppi","Drone 2"],["eliot","Run & gun — embarquement"],["martin","Run & gun — embarquement"],["jerem","Follow intervenant"],["dan","Follow intervenant"],["saoud","Ethan & famille — montée"],["max","Photo"],["dylan","Photo + B-roll VIP"]],
+  "d4-1100":[["audric","Large + low-light"],["heppi","Drone + ralenti"],["eliot","Run & gun — pont / moments"],["martin","Run & gun — pont / moments"],["jerem","Follow intervenant"],["dan","Follow intervenant"],["saoud","Ethan & famille à bord"],["max","Photo"],["dylan","Photo + B-roll VIP"]],
+  "d4-drone":[["audric","Drone sillage/orbite"],["heppi","Drone 2 (Mini 5 Pro)"]],
+  "d4-gold":[["audric","Drone"],["heppi","Drone 2"],["eliot",""],["martin",""],["jerem",""],["dan",""],["saoud",""],["max",""],["dylan",""]],
+};
+
+const DEFAULT_CHARTE = [
+  "**Format** — 4K UHD · 25p · obturateur 1/50 (Europe). Ralentis 100/120p sur B-roll uniquement.",
+  "**Profil image** — Sony : S-Log3 / S-Gamut3.Cine · Fuji : F-Log2 · Canon : C-Log3. Grade LUT commune en post.",
+  "**Exposition** — S-Log3 : +1.7 à +2 IL (ETTR), zébras 94. On ne sous-expose JAMAIS le Log.",
+  "**Balance des blancs** — fixée par scène (5600K extérieur jour), JAMAIS en auto. Matcher l'intérieur salle.",
+  "**Cadrage talk** — 1 large fixe SÉCU qui ne bouge pas + 1 serré 2/3 règle des tiers, de l'air devant le regard. Zéro zoom pendant un talk.",
+  "**Cadrage interview** — regard légèrement hors-axe, look room côté question, fond avec profondeur (pas collé au mur).",
+  "**Mouvement** — Ronin : entrées/sorties et arrivées SANS coupe. Pas de gimbal pendant les talks.",
+  "**Son** — double système. Clap ou timecode en début de prise interview. HF sur chaque intervenant.",
+  "**Cartes** — nommage JX_CAM_NOM_001. Double backup chaque soir avant de dormir. Rien n'est formaté avant validation.",
+  "**Golden hour** — tout le monde tourne, zéro déchargement de carte pendant le créneau.",
+  "**Livrables** — Reel J+0 vertical 9:16 le soir même · Aftermovie 16:9 J+7 (Audric).",
+];
+
+/* ---------- state ---------- */
+const LS_KEY="mm:regie:v15";
+const SEED={"assign": {"d1-0700": [["audric", "Drone rentré des supercars "], ["heppi", "Drone plan fixe des participants qui marche (fourmilière "], ["eliot", "Run & gun — lieu / détails (installation scene)"], ["martin", "Plan fixe— lieu / détails (installation scene)"], ["max", "Photo lieux"], ["dylan", "B-roll VIP setup"]], "d1-1000": [["eliot", "Run & gun — voitures / arrivées"], ["martin", "Plan fixe— voitures / arrivées"], ["audric", "Vidéo avec les sécus et ethan"], ["heppi", ""], ["jerem", "Follow Adam — insights"], ["dan", "Follow Flavio"], ["saoud", "Ethan & famille — arrivée"], ["max", "Photo arrivées"], ["dylan", "Photo + B-roll VIP"]], "d1-1100": [["audric", "Large fixe en sécurité FX3 (+drone)"], ["heppi", "Plan fixe en sécurité (Sony A7S3 d'Audric) "], ["eliot", "Run & gun — émotion / angles"], ["martin", "Run & gun — angles originaux"], ["jerem", "Follow Adam — insights"], ["saoud", "Famille — réactions"], ["max", "Photo"], ["dylan", "Photo + B-roll VIP"]], "d1-1130": [["audric", "Large fixe en sécurité FX3 (+drone)"], ["heppi", "Plan fixe en sécurité (Sony A7S3 d'Audric) "], ["eliot", "Run & gun — émotion / angles"], ["martin", "Run & gun — angles originaux"], ["max", "Photo"], ["dylan", "Photo + B-roll VIP"], ["jerem", "Depart Uber Cannes Yomi"], ["dan", "Follow Taylor — insights"]], "d1-1230": [["audric", "Large fixe en sécurité FX3 (+drone)"], ["heppi", "Plan fixe en sécurité (Sony A7S3 d'Audric) "], ["eliot", "Run & gun — émotion / angles"], ["martin", "Run & gun — angles originaux"], ["max", "Photo"], ["dylan", "Photo + B-roll VIP"]], "d1-1300": [["max", "Photo VIP"], ["heppi", "Ralenti pendant le repas"], ["martin", "Faire des plans fixes pour l'entrée des vip repas"]], "d1-1330": [["saoud", "Ethan & famille"], ["max", "Photo"], ["dylan", "Photo + B-roll VIP"]], "d1-int": [["heppi", "ITW in-house — cadre"], ["audric", "ITW in-house — 2e cam / ralenti"], ["jerem", "Son & Cam"], ["dan", "Follow / renfort"]], "d1-1500": [["audric", "Large fixe en sécurité FX3 (+drone)"], ["heppi", "Plan fixe en sécurité (Sony A7S3 d'Audric) "], ["eliot", "Run & gun — émotion / angles"], ["martin", "Run & gun — angles originaux"], ["jerem", "Follow Yomi — insights"], ["dan", "Follow Yomi — insights"], ["max", "Photo"], ["dylan", "Photo + B-roll VIP"]], "d1-1600": [["audric", "Large fixe en sécurité FX3 (+drone)"], ["heppi", "Plan fixe en sécurité (Sony A7S3 d'Audric) "], ["eliot", "Run & gun — émotion / angles"], ["martin", "Run & gun — angles originaux"], ["jerem", "Follow Taylor — insights"], ["dan", "Follow Flavio"], ["max", "Photo"], ["dylan", "Photo + B-roll VIP"]], "d1-1700": [["saoud", "Ethan & famille"], ["eliot", "Run & gun — moment / ambiance"], ["martin", "Run & gun — moment / ambiance"], ["jerem", "Follow intervenant"], ["dan", "Follow intervenant"], ["max", "Photo"], ["dylan", "Photo + B-roll VIP"]], "d1-gold": [["audric", "Drone"], ["heppi", "Drone 2 + ralenti"], ["eliot", ""], ["martin", ""], ["saoud", ""], ["max", ""], ["dylan", ""]], "d1-2000": [["saoud", "Ethan & famille"], ["max", "Photo"], ["dylan", "Photo + B-roll VIP"]], "d1-reel": [], "d2-0900": [["audric", "Levé du soleil au drone -> le soleil se lève à "], ["heppi", "Drone 2 + b-roll matin"], ["eliot", "Run & gun — détails"], ["martin", "Run & gun — détails"]], "d2-1000": [["eliot", "Run & gun — voitures / arrivées"], ["martin", "Run & gun — arrivées"], ["audric", "Drone"], ["heppi", "Ralenti"], ["jerem", "Follow intervenant"], ["dan", "Follow intervenant"], ["saoud", "Ethan & famille"], ["max", "Photo"], ["dylan", "Photo + B-roll VIP"]], "d2-1100": [["audric", "Large fixe en sécurité FX3 (+drone)"], ["heppi", "Serré + ralenti"], ["eliot", "Run & gun — émotion / angles"], ["martin", "Run & gun — angles originaux"], ["jerem", "Follow Tugan — insights"], ["dan", "Follow Tugan — insights"], ["max", "Photo"], ["dylan", "Photo + B-roll VIP"]], "d2-1200": [["audric", "Large fixe en sécurité FX3 (+drone)"], ["heppi", "Serré + ralenti"], ["eliot", "Run & gun — émotion / angles"], ["martin", "Run & gun — angles originaux"], ["jerem", "Follow Matis — insights"], ["dan", "Follow Matis — insights"], ["max", "Photo"], ["dylan", "Photo + B-roll VIP"]], "d2-1330": [["saoud", "Ethan & famille + ITW shorts (Dylan)"], ["dylan", "ITW shorts (Ryan) + Photo VIP"], ["max", "Photo VIP"]], "d2-int": [["heppi", "ITW in-house — cadre"], ["audric", "ITW in-house — 2e cam / ralenti"], ["jerem", "Son + questions"], ["dan", "Follow / renfort"]], "d2-1450": [["audric", "Large fixe en sécurité FX3 (+drone)"], ["heppi", "Serré + ralenti"], ["eliot", "Run & gun — réaction salle"], ["martin", "Run & gun — angles"], ["jerem", "Follow / logo"], ["dan", "Follow"], ["max", "Photo"], ["dylan", "Photo + B-roll VIP"]], "d2-1500": [["audric", "Large fixe en sécurité FX3 (+drone)"], ["heppi", "Serré + ralenti"], ["eliot", "Run & gun — émotion / angles"], ["martin", "Run & gun — angles originaux"], ["jerem", "Follow Tai — insights"], ["dan", "Follow Tai — insights"], ["max", "Photo"], ["dylan", "Photo + B-roll VIP"]], "d2-1730": [["saoud", "Ethan & famille"], ["eliot", "Run & gun — moment / ambiance"], ["martin", "Run & gun — moment / ambiance"], ["jerem", "Follow intervenant"], ["dan", "Follow intervenant"], ["max", "Photo"], ["dylan", "Photo + B-roll VIP"]], "d2-gold": [["audric", "Plan à l'arrière de la maison"], ["heppi", "Drone 2 + ralenti"], ["eliot", ""], ["martin", ""], ["jerem", ""], ["dan", ""], ["saoud", ""], ["max", ""], ["dylan", ""]], "d2-2000": [["saoud", "Ethan & famille"], ["max", "Photo"], ["dylan", "Photo + B-roll VIP"]], "d2-reel": [], "d3-1000": [["eliot", "Run & gun — arrivées"], ["martin", "Run & gun — arrivées"], ["audric", "Drone"], ["heppi", "Ralenti"], ["jerem", "Follow intervenant"], ["dan", "Follow intervenant"], ["saoud", "Ethan & famille"], ["max", "Photo"], ["dylan", "Photo + B-roll VIP"]], "d3-1100": [["audric", "Large fixe en sécurité FX3 (+drone)"], ["heppi", "Serré + ralenti"], ["eliot", "Run & gun — émotion / angles"], ["martin", "Run & gun — angles originaux"], ["jerem", "Follow Silouane — insights"], ["dan", "Follow Silouane — insights"], ["max", "Photo"], ["dylan", "Photo + B-roll VIP"]], "d3-1200": [["audric", "Large fixe en sécurité FX3 (+drone)"], ["heppi", "Serré + ralenti"], ["eliot", "Run & gun — émotion / angles"], ["martin", "Run & gun — angles originaux"], ["jerem", "Follow Tai — insights"], ["dan", "Follow Tai — insights"], ["max", "Photo"], ["dylan", "Photo + B-roll VIP"]], "d3-1330": [["saoud", "Ethan & famille + ITW shorts (Dylan)"], ["dylan", "ITW shorts (Ryan) + Photo VIP"], ["max", "Photo VIP"]], "d3-int": [["heppi", "ITW in-house — cadre"], ["audric", "ITW in-house — 2e cam / ralenti"], ["jerem", "Son + questions"], ["dan", "Follow / renfort"]], "d3-1440": [["audric", "Large fixe en sécurité FX3 (+drone)"], ["heppi", "Serré + ralenti"], ["eliot", "Run & gun — réaction salle"], ["martin", "Run & gun — angles"], ["jerem", "Follow / logo"], ["dan", "Follow"], ["max", "Photo"], ["dylan", "Photo + B-roll VIP"]], "d3-1500": [["audric", "Large fixe en sécurité FX3 (+drone)"], ["heppi", "Serré + ralenti — MOMENT CLÉ"], ["eliot", "Run & gun — émotion"], ["martin", "Run & gun — angles originaux"], ["jerem", "Follow Ethan — insights"], ["dan", "Follow Ethan — insights"], ["saoud", "Famille — réactions"], ["max", "Photo"], ["dylan", "Photo + B-roll VIP"]], "d3-1700": [["saoud", "Ethan & famille"], ["eliot", "Run & gun — moment / teaser"], ["martin", "Run & gun — moment / teaser"], ["jerem", "Follow intervenant"], ["dan", "Follow intervenant"], ["max", "Photo"], ["dylan", "Photo + B-roll VIP"]], "d3-gold": [["audric", "Drone"], ["heppi", "Drone 2 + ralenti"], ["eliot", ""], ["martin", ""], ["jerem", ""], ["dan", ""], ["saoud", ""], ["max", ""], ["dylan", ""]], "d4-1030": [["audric", "Drone départ port"], ["heppi", "Drone 2"], ["eliot", "Run & gun — embarquement"], ["martin", "Run & gun — embarquement"], ["jerem", "Follow intervenant"], ["dan", "Follow intervenant"], ["saoud", "Ethan & famille — montée"], ["max", "Photo"], ["dylan", "Photo + B-roll VIP"]], "d4-1100": [["audric", "Large + low-light"], ["heppi", "Drone + ralenti"], ["eliot", "Run & gun — pont / moments"], ["martin", "Run & gun — pont / moments"], ["jerem", "Follow intervenant"], ["dan", "Follow intervenant"], ["saoud", "Ethan & famille à bord"], ["max", "Photo"], ["dylan", "Photo + B-roll VIP"]], "d4-drone": [["audric", "Drone sillage/orbite"], ["heppi", "Drone 2 (Mini 5 Pro)"]], "d4-gold": [["audric", "Drone"], ["heppi", "Drone 2"], ["eliot", ""], ["martin", ""], ["jerem", ""], ["dan", ""], ["saoud", ""], ["max", ""], ["dylan", ""]]}, "charte": ["**Format** — 4K UHD · 25p · obturateur 1/50 (Europe). Ralentis 100/120p sur B-roll uniquement.", "**Profil image** — Sony : S-Log3 / S-Gamut3.Cine · Fuji : F-Log2. Grade LUT commune en post.", "**Exposition** — S-Log3 : +1.7 à +2 IL (ETTR), zébras 94. On ne sous-expose JAMAIS le Log.", "**Balance des blancs** — Toujours en auto.", "**Cadrage talk** — 1 large fixe SÉCU qui ne bouge pas (FX3) + 1 serré 2/3 règle des tiers (A7S3 audric) Zéro zoom pendant un talk. Plan séquence/Broll au ronin/R&G", "**Cadrage interview** — regard légèrement hors-axe, look room côté question, fond avec profondeur (pas collé au mur).", "**Mouvement** — Ronin : entrées/sorties et arrivées SANS coupe. ", "**Son** — double système. Clap ou timecode en début de prise interview. HF sur chaque intervenant.", "**Cartes** — nommage JX_CAM_NOM_001. Double backup chaque soir avant de dormir. Rien n'est formaté avant validation.", "**Golden hour/Cocktail** — tout le monde tourne, zéro déchargement de carte pendant le créneau."], "acks": {}, "times": {"dylan:d1-1000": "09:02", "audric:d1-0700": "09:30", "audric:d1-1000": "10:30", "audric:d2-0900": "06:00", "audric:d2-gold": "20:00", "audric:d4-gold": "17:00", "audric:d3-gold": "17:00", "heppi:d1-0700": "09:30", "heppi:d1-gold": "17:00", "heppi:d1-1000": "11:00", "eliot:d1-1000": "09:30", "martin:d1-1000": "09:03", "dan:d1-1600": "15:00"}, "edits": {"slot:d2-gold:title": "Diner privé ", "slot:d4-gold:title": "À voir", "slot:d3-gold:title": "Clôture", "day:d4:ttl": "VIP BOAT DAY", "slot:d4-1030:title": "À voir", "slot:d4-1100:title": "À voir", "slot:d4-drone:title": "À voir", "slot:d1-0700:title": "Levé du lieu", "slot:d1-1000:title": "Matin ", "slot:d1-1230:spk": "Taylor Chiche", "slot:d1-1600:spk": "Flavio Guionneau", "slot:d1-1700:title": "Networking dans domaine", "slot:d2-int:note": "TAI/MATIS/TUGAN", "slot:d1-1230:title": "Conférence", "slot:d1-1600:title": "Optimiser sa santé pour performer", "slot:d1-int:note": "Yomi  & Taylor en prio", "slot:d1-1130:title": "Conférence", "slot:d1-1100:title": "Introduction"}, "customSlots": {}, "slotTimes": {"d2-int": "14:30", "d1-int": "14:02"}};
+const deep=o=>JSON.parse(JSON.stringify(o));
+function normalize(d){return{
+  assign:d.assign||deep(DEFAULT_ASSIGN), charte:d.charte||deep(DEFAULT_CHARTE),
+  acks:d.acks||{}, times:d.times||d.over||{}, edits:d.edits||{},
+  customSlots:d.customSlots||d.slots||{}, slotTimes:d.slotTimes||d.stimes||{}
+};}
+function loadState(){ try{const r=localStorage.getItem(LS_KEY); if(r) return normalize(JSON.parse(r));}catch(e){} 
+  return deep(SEED); }
+let S=loadState();
+function save(){ try{localStorage.setItem(LS_KEY,JSON.stringify(S));}catch(e){} }
+
+/* ---------- helpers ---------- */
+const esc=s=>String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+const cn=c=>S.edits["crew:"+c.id+":name"]||c.name;
+const txt=(k,d)=>S.edits[k]!=null?S.edits[k]:d;
+const gear=c=>S.edits["crew:"+c.id+":gear"]||c.gear;
+const crole=c=>S.edits["crew:"+c.id+":role"]||c.role;
+function daySlots(did){return [...PROGRAM[did],...((S.customSlots[did])||[])].map(s=>({...s,t:S.slotTimes[s.id]||s.t})).sort((a,b)=>a.t.localeCompare(b.t));}
+const ICO={talk:"🎤",prod:"🎬",meal:"🍽️",vip:"🥂",net:"🤝",gold:"✨",boat:"🛥️",interview:"🎙️"};
+function ed(k,d,cls,ph){return `<span class="ed ${cls||""}" contenteditable="true" spellcheck="false" data-k="${esc(k)}" data-ph="${esc(ph||"")}">${esc(txt(k,d))}</span>`;}
+const getA=id=>S.assign[id]||[];
+const isSel=(id,cid)=>getA(id).some(a=>a[0]===cid);
+
+let view="regie", day="d1", person="audric", panelSlot=null;
+
+/* ---------- render ---------- */
+function topHTML(){return `
+<header class="top no-print"><div class="top-in">
+  <div style="width:32px;height:32px;border-radius:9px;background:var(--surface2);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center">🎬</div>
+  <div class="brand"><b>${ed("brand:title","Mansion Mastermind — Régie")}</b><span>${ed("brand:sub","Cap d'Antibes · 20–23 juil · Réal. Andréa")}</span></div>
+  <div class="tabs">
+    <button class="tab ${view==="regie"?"on":""}" data-tab="regie">Régie</button>
+    <button class="tab ${view==="call"?"on":""}" data-tab="call">Call sheets</button>
+    <button class="tab ${view==="charte"?"on":""}" data-tab="charte">Charte</button>
+  </div>
+  <div class="tabs" style="margin-left:8px">
+    <button class="tab" title="Exporter (JSON)" data-export>⬇︎</button>
+    <button class="tab" title="Importer (JSON)" data-import>⬆︎</button>
+    <input id="impfile" type="file" accept="application/json" style="display:none"/>
+  </div>
+</div></header>`;}
+
+function regieHTML(){
+  let days=DAYS.map(d=>`<div class="day ${day===d.id?"on":""}" data-day="${d.id}">
+    <div class="dnum">${d.num}</div><div class="dttl">${ed("day:"+d.id+":ttl",d.ttl)}</div><div class="dsub">${ed("day:"+d.id+":sub",d.sub)}</div></div>`).join("");
+  let duos=DUOS.map((d,i)=>`<div class="rgcard">
+    <div class="rgcard-top">${d.crew.map(id=>`<div class="cavatar" style="background:${CREW_BY_ID[id].color}">${cn(CREW_BY_ID[id])[0]}</div>`).join("")}<b>${d.crew.map(id=>esc(cn(CREW_BY_ID[id]))).join(" + ")}</b></div>
+    <div class="rgfollows">${ed("duo:"+i+":name",d.name)}</div>
+    <div class="rgnote">${ed("duo:"+i+":obj",d.obj)}</div></div>`).join("");
+  let slots=daySlots(day).map(s=>{
+    let chips=getA(s.id).map(([cid,role])=>{const c=CREW_BY_ID[cid];if(!c)return"";
+      return `<span class="chip" data-open="${s.id}"><span class="dot" style="background:${c.color}"></span>${esc(cn(c))}${c.mode==="rg"?'<span class="rgbadge">R&amp;G</span>':""}${role?`<span class="role">· ${esc(role)}</span>`:""}</span>`;}).join("");
+    return `<div class="slot">
+      <div class="stime" data-noedit>
+        <input class="tinput" type="time" value="${s.t}" data-stime="${s.id}"/>
+        ${s.e?`<div class="end">→${s.e}</div>`:""}
+        ${s.custom?`<button class="trevert" data-del-slot="${s.id}">✕ suppr.</button>`:""}
+      </div>
+      <div class="sbody">
+        <div class="shead">
+          <div class="stype" data-open="${s.id}">${ICO[s.type]||"🎬"}</div>
+          <div style="flex:1;min-width:0" data-noedit>
+            <div class="stitle">${ed("slot:"+s.id+":title",s.title)}</div>
+            ${s.spk!==undefined?`<div class="sspk">${ed("slot:"+s.id+":spk",s.spk||"")}</div>`:""}
+            <div class="snote">${ed("slot:"+s.id+":note",s.note||"","","+ note…")}</div>
+          </div>
+        </div>
+        <div class="chips">${chips}<span class="chip empty" data-open="${s.id}">＋ Affecter</span></div>
+      </div>
+    </div>`;}).join("");
+  return `<div class="days">${days}</div>
+    <div class="rgband"><div class="rgband-h"><span class="rgtag">Pôles</span><b>Duos &amp; objectifs</b><span>4 duos + Ryan sur Ethan</span></div><div class="rgcards duos">${duos}</div></div>
+    <div class="grid">${slots}<button class="addslot" data-add-slot>＋ Ajouter un créneau</button></div>`;
+}
+
+function callHTML(){
+  const rail=CREW.map(p=>{const count=DAYS.reduce((n,d)=>n+daySlots(d.id).filter(s=>getA(s.id).some(a=>a[0]===p.id)).length,0);
+    return `<button class="csperson ${person===p.id?"on":""}" data-person="${p.id}"><div class="cavatar" style="background:${p.color}">${cn(p)[0]}</div><div style="min-width:0"><div style="font-size:13px;font-weight:560">${esc(cn(p))}</div><div style="font-size:11px;color:var(--faint)">${count} créneaux</div></div></button>`;}).join("");
+  const c=CREW_BY_ID[person];
+  const di=DUO_OF[person]?DUOS.indexOf(DUO_OF[person]):-1;
+  const tkey=sid=>person+":"+sid;
+  const perDay=DAYS.map(d=>({day:d,lines:daySlots(d.id).filter(s=>getA(s.id).some(a=>a[0]===person)).map(s=>({...s,role:(getA(s.id).find(a=>a[0]===person)||[])[1]||"",t2:S.times[tkey(s.id)]||s.t})).sort((a,b)=>a.t2.localeCompare(b.t2))})).filter(x=>x.lines.length);
+  let obj=di>=0?`<div class="csobj"><span class="rgtag">Pôle</span><div style="flex:1"><div class="csobj-name">${ed("duo:"+di+":name",DUOS[di].name)}${DUOS[di].crew.length>1?`<span style="color:var(--dim);font-weight:440"> · avec ${DUOS[di].crew.filter(id=>id!==person).map(id=>esc(cn(CREW_BY_ID[id]))).join(", ")}</span>`:""}</div><div class="csobj-obj">Objectif : ${ed("duo:"+di+":obj",DUOS[di].obj)}</div></div></div>`:"";
+  let days=perDay.map(({day,lines})=>`<div class="csday"><div class="csdayh">${day.num} — ${ed("day:"+day.id+":ttl",day.ttl)}</div>${lines.map(s=>{
+      const edited=!!S.times[tkey(s.id)];
+      return `<div class="csline"><div class="csl-t"><input class="tinput ${edited?"edited":""}" type="time" value="${S.times[tkey(s.id)]||s.t}" data-ctime="${s.id}"/>${edited?`<button class="trevert" data-revert="${s.id}">↺ ${s.t}</button>`:""}</div>
+      <div><div class="csl-ttl">${ed("slot:"+s.id+":title",s.title)}</div><div class="csl-role">→ <input class="roleinput" value="${esc(s.role)}" placeholder="renommer le contexte / rôle…" data-crole="${s.id}"/></div>${s.spk!==undefined?`<div class="csl-spk">${ed("slot:"+s.id+":spk",s.spk||"")}</div>`:""}</div></div>`;}).join("")}</div>`).join("");
+  let charte=`<div class="csday"><div class="csdayh">Charte technique — à respecter</div>${S.charte.slice(0,7).map((line,i)=>`<div style="font-size:12px;color:var(--dim);padding:4px 0;display:flex;gap:8px"><span class="mono" style="color:var(--accent)">${String(i+1).padStart(2,"0")}</span><span>${line.replace(/\*\*(.+?)\*\*/g,"<b style='color:var(--text)'>$1</b>")}</span></div>`).join("")}</div>`;
+  return `<div class="csgrid"><div class="csrail no-print">${rail}</div><div class="csmain"><div class="cscard">
+    <div class="cstop"><div class="csbig" style="background:${c.color}">${cn(c)[0]}</div><div style="flex:1"><div class="csname">${ed("crew:"+c.id+":name",c.name)}</div><div class="csrole">${ed("crew:"+c.id+":role",c.role)}</div><div class="csgear">${ed("crew:"+c.id+":gear",c.gear)}</div></div><button class="btn no-print" data-print>🖨 Imprimer / PDF</button></div>
+    ${obj}${perDay.length?days:`<div class="empty-cs">Aucun créneau affecté.</div>`}${charte}
+  </div></div></div>`;
+}
+
+function charteHTML(){
+  let lines=S.charte.map((line,i)=>`<div class="crow"><div class="cnum">${String(i+1).padStart(2,"0")}</div><div class="ctxt ed" contenteditable="true" spellcheck="false" data-charte="${i}">${esc(line)}</div><button class="cdel no-print" data-charte-del="${i}">✕</button></div>`).join("");
+  let acks=CREW.map(c=>`<div class="ackitem ${S.acks[c.id]?"ok":""}" data-ack="${c.id}"><div class="ackdot">${S.acks[c.id]?"✓":""}</div><div><div style="font-size:13px;font-weight:560">${esc(cn(c))}</div><div style="font-size:11px;color:var(--faint)">${esc(gear(c))}</div></div></div>`).join("");
+  const done=Object.values(S.acks).filter(Boolean).length;
+  return `<div class="charte">
+    <div style="margin:18px 0 6px;font-size:16px;font-weight:640">${ed("charte:title","Charte technique commune")}</div>
+    <div style="font-size:12.5px;color:var(--dim);margin-bottom:14px">${ed("charte:sub","Tout le monde tourne pareil. Chaque filmmaker confirme en bas quand ses réglages sont faits.")}</div>
+    ${lines}
+    <div class="addline no-print"><input id="newline" placeholder="Ajouter une règle…  (**gras**)"/><button class="btn" data-charte-add>＋ Ajouter</button></div>
+    <div class="ackwrap"><div class="ackh">Check équipe · charte lue &amp; caméra réglée</div><div class="acksub">Tape sur un nom quand il a validé. ${done}/${CREW.length} confirmés.</div><div class="ackgrid">${acks}</div></div>
+  </div>`;
+}
+
+function panelHTML(){
+  const s=panelSlot; const dnum=(DAYS.find(d=>d.id===day)||{}).num||"";
+  let rows=CREW.map(c=>{const sel=isSel(s.id,c.id);const role=(getA(s.id).find(a=>a[0]===c.id)||[])[1]||"";
+    return `<div class="crewrow ${sel?"sel":""}"><div class="cbox" data-toggle="${c.id}" style="${sel?`background:${c.color};border-color:${c.color}`:""}">${sel?"✓":""}</div><div class="cavatar" style="background:${c.color}">${cn(c)[0]}</div><div style="min-width:0" data-toggle="${c.id}"><div class="cname">${esc(cn(c))}${c.mode==="rg"?'<span class="rgbadge">R&amp;G</span>':""}</div><div class="cgear">${esc(crole(c))}</div></div>${sel?`<input class="rinput" value="${esc(role)}" placeholder="rôle sur ce plan…" data-prole="${c.id}"/>`:""}</div>`;}).join("");
+  return `<div class="overlay" data-close-overlay><div class="sheet">
+    <div class="sheet-h"><div data-noedit><div class="stitle">${ed("slot:"+s.id+":title",s.title)}</div><div class="mono" style="font-size:12px;color:var(--dim);margin-top:2px">${dnum} · ${S.slotTimes[s.id]||s.t}${s.e?" → "+s.e:""}</div>${s.spk!==undefined?`<div class="sspk" style="margin-top:3px">${ed("slot:"+s.id+":spk",s.spk||"")}</div>`:""}</div><button class="xbtn" data-close-panel>✕</button></div>
+    <div class="snote" style="margin-top:6px" data-noedit>${ed("slot:"+s.id+":note",s.note||"","","+ note…")}</div>
+    <div class="plabel">Équipe affectée · rôle</div>${rows}
+  </div></div>`;
+}
+
+function viewHTML(){return view==="regie"?regieHTML():view==="call"?callHTML():charteHTML();}
+function render(){document.getElementById("app").innerHTML=topHTML()+`<div class="wrap">${viewHTML()}</div>`+(panelSlot?panelHTML():"");}
+
+/* ---------- events ---------- */
+document.addEventListener("click",e=>{ if(e.target.closest("[data-noedit]")) e.stopPropagation(); },true);
+document.addEventListener("click",e=>{
+  const t=e.target.closest("[data-tab],[data-day],[data-person],[data-open],[data-add-slot],[data-del-slot],[data-toggle],[data-ack],[data-charte-del],[data-charte-add],[data-export],[data-import],[data-print],[data-close-panel],[data-close-overlay],[data-revert]");
+  if(!t)return;
+  if(t.hasAttribute("data-tab")){view=t.getAttribute("data-tab");render();}
+  else if(t.hasAttribute("data-day")){day=t.getAttribute("data-day");render();}
+  else if(t.hasAttribute("data-person")){person=t.getAttribute("data-person");render();}
+  else if(t.hasAttribute("data-open")){const id=t.getAttribute("data-open");panelSlot=daySlots(day).find(s=>s.id===id);render();}
+  else if(t.hasAttribute("data-close-panel")){panelSlot=null;render();}
+  else if(t.hasAttribute("data-close-overlay")&&e.target===t){panelSlot=null;render();}
+  else if(t.hasAttribute("data-add-slot")){const id=day+"-c"+Date.now();(S.customSlots[day]=S.customSlots[day]||[]).push({id,t:"12:00",title:"Nouveau créneau",type:"prod",custom:true});save();render();}
+  else if(t.hasAttribute("data-del-slot")){const id=t.getAttribute("data-del-slot");S.customSlots[day]=(S.customSlots[day]||[]).filter(x=>x.id!==id);delete S.assign[id];save();panelSlot=null;render();}
+  else if(t.hasAttribute("data-toggle")){const cid=t.getAttribute("data-toggle");const id=panelSlot.id;const cur=S.assign[id]||[];S.assign[id]=isSel(id,cid)?cur.filter(a=>a[0]!==cid):[...cur,[cid,""]];save();render();}
+  else if(t.hasAttribute("data-ack")){const id=t.getAttribute("data-ack");S.acks[id]=!S.acks[id];save();render();}
+  else if(t.hasAttribute("data-charte-del")){const i=+t.getAttribute("data-charte-del");S.charte.splice(i,1);save();render();}
+  else if(t.hasAttribute("data-charte-add")){const inp=document.getElementById("newline");if(inp&&inp.value.trim()){S.charte.push(inp.value.trim());save();render();}}
+  else if(t.hasAttribute("data-revert")){const id=t.getAttribute("data-revert");delete S.times[person+":"+id];save();render();}
+  else if(t.hasAttribute("data-print")){window.print();}
+  else if(t.hasAttribute("data-export")){doExport();}
+  else if(t.hasAttribute("data-import")){document.getElementById("impfile").click();}
+});
+document.addEventListener("change",e=>{
+  const el=e.target;
+  if(el.dataset.stime!=null){S.slotTimes[el.dataset.stime]=el.value;save();render();}
+  else if(el.dataset.ctime!=null){S.times[person+":"+el.dataset.ctime]=el.value;save();render();}
+  else if(el.dataset.crole!=null){setRole(el.dataset.crole,person,el.value);save();}
+  else if(el.dataset.prole!=null){setRole(panelSlot.id,el.dataset.prole,el.value);save();}
+  else if(el.id==="impfile"&&el.files[0]){importFile(el.files[0]);el.value="";}
+});
+document.addEventListener("focusout",e=>{
+  const el=e.target;
+  if(el.dataset&&el.dataset.k!=null){const k=el.dataset.k;const v=el.innerText.replace(/\n+$/,"");if((S.edits[k]||"")!==v){S.edits[k]=v;save();}}
+  else if(el.dataset&&el.dataset.charte!=null){const i=+el.dataset.charte;const v=el.innerText.replace(/\n+$/,"");if(S.charte[i]!==v){S.charte[i]=v;save();}}
+});
+
+function setRole(id,cid,role){S.assign[id]=(S.assign[id]||[]).map(a=>a[0]===cid?[cid,role]:a);}
+
+/* ---------- import / export ---------- */
+function doExport(){
+  const out={assign:S.assign,charte:S.charte,acks:S.acks,over:S.times,edits:S.edits,slots:S.customSlots,stimes:S.slotTimes,_exported:new Date().toISOString()};
+  const blob=new Blob([JSON.stringify(out,null,2)],{type:"application/json"});
+  const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="mansion-regie-data.json";a.click();setTimeout(()=>URL.revokeObjectURL(url),500);
+}
+function importFile(file){const r=new FileReader();r.onload=()=>{try{S=normalize(JSON.parse(r.result));save();render();alert("Import réussi ✓");}catch(e){alert("Fichier invalide");}};r.readAsText(file);}
+
+render();
+
+</script>
+</body>
+</html>
